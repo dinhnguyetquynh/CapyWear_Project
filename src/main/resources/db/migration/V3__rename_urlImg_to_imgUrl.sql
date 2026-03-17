@@ -1,0 +1,1 @@
+ALTER TABLE items RENAME COLUMN url_img TO img_url;
