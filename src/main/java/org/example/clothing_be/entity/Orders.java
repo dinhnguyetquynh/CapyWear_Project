@@ -16,6 +16,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class Orders {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private LocalDate orderDate;
     private double totalOrder;
