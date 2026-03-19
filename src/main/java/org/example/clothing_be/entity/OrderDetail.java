@@ -22,5 +22,8 @@ public class OrderDetail {
     private int quantity;
     private double purchasedPrice;
     private double totalItem;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "order_id")
+    private Orders order;
 
 }
