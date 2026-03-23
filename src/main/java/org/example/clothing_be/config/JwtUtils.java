@@ -18,6 +18,8 @@ public class JwtUtils {
     private String SECRET_KEY;
     @Value("${jwt.expiration}")
     private long EXPIRATION_TIME;
+    @Value("${jwt.refreshExpiration}")
+    private long REFRESH_EXPIRATION_TIME;
 
     private Key getSigningKey() {
         return Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
@@ -29,6 +31,15 @@ public class JwtUtils {
                 .claim("roles", roles)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
+                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
+                .compact();
+    }
+    // Tạo Refresh Token (Mới: Thường không cần chứa Roles để bảo mật và nhẹ payload)
+    public String generateRefreshToken(String username) {
+        return Jwts.builder()
+                .setSubject(username)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + REFRESH_EXPIRATION_TIME))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
@@ -66,6 +77,7 @@ public class JwtUtils {
             return true;
         } catch (ExpiredJwtException e) {
             log.error("Token đã hết hạn: {}", e.getMessage());
+//            throw e; // Ném ra để Service hoặc Global Handler xử lý
         } catch (SignatureException e) {
             log.error("Chữ ký Token không hợp lệ: {}", e.getMessage());
         } catch (Exception e) {
