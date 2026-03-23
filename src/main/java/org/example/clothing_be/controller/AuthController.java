@@ -1,5 +1,6 @@
 package org.example.clothing_be.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.clothing_be.dto.users.request.AccountCreateReq;
 import org.example.clothing_be.dto.users.respone.UserRes;
@@ -15,7 +16,7 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/register")
-    public ResponseEntity<UserRes> register(@RequestBody AccountCreateReq req) {
+    public ResponseEntity<UserRes> register(@Valid  @RequestBody AccountCreateReq req) {
         UserRes res = authService.creatAccount(req);
         return ResponseEntity.ok(res);
     }
