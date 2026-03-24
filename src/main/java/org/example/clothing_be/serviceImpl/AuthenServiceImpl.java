@@ -11,10 +11,10 @@ import org.example.clothing_be.entity.Role;
 import org.example.clothing_be.entity.User;
 import org.example.clothing_be.entity.UserRole;
 import org.example.clothing_be.enums.Status;
-import org.example.clothing_be.exception.AppException;
 
-import org.example.clothing_be.exception.ErrorCode;
-
+import org.example.clothing_be.exception.EmailAlreadyExistsException;
+import org.example.clothing_be.exception.InvalidEmailException;
+import org.example.clothing_be.exception.UserNotFoundException;
 import org.example.clothing_be.repository.RoleRepository;
 import org.example.clothing_be.repository.UserRepository;
 import org.example.clothing_be.service.AuthenService;
@@ -97,7 +97,7 @@ public class AuthenServiceImpl implements AuthenService {
     @Transactional
     public UserRes creatAccount(AccountCreateReq req) {
         if (userRepository.existsByEmail(req.getEmail())) {
-            throw new AppException(ErrorCode.EMAIL_IS_USED);
+            throw new EmailAlreadyExistsException(req.getEmail());
         }
         String otp = generateOtp();
         sendOtpEmail(req.getEmail(), otp);
@@ -130,7 +130,7 @@ public class AuthenServiceImpl implements AuthenService {
 
             String email = jwtUtils.extractUsername(oldRefreshToken);
             User user = userRepository.findByEmail(email)
-                    .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+                    .orElseThrow(() -> new UserNotFoundException());
 
             List<String> roles = user.getUserRoles().stream()
                     .map(ur -> ur.getRole().getRoleName())
@@ -148,11 +148,11 @@ public class AuthenServiceImpl implements AuthenService {
     @Override
     public AuthResponse login(LoginReq req) {
         User user = userRepository.findByEmail(req.getEmail())
-                .orElseThrow(() -> new AppException(ErrorCode.EMAIL_PASS_NOT_CORRECT));
+                .orElseThrow(() -> new InvalidEmailException());
 
         boolean isPasswordMatch = passwordEncoder.matches(req.getPassword(), user.getPassword());
         if (!isPasswordMatch) {
-            throw new AppException(ErrorCode.EMAIL_PASS_NOT_CORRECT);
+            throw new InvalidEmailException();
         }
 
         List<String> roles = user.getUserRoles().stream()

@@ -14,31 +14,28 @@ import java.util.stream.Collectors;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(AppException.class)
-    public ResponseEntity<ApiError> handleAppException(AppException ex, HttpServletRequest request) {
-        ErrorCode errorCode = ex.getErrorCode();
-        return buildResponse(errorCode.getStatus(), errorCode.getCode(), errorCode.getMessage(), request.getRequestURI(), null);
+    @ExceptionHandler(BaseApiException.class)
+    public ResponseEntity<ApiError> handleBaseApiException(BaseApiException ex) {
+        return new ResponseEntity<>(ex.getApiError(), ex.getStatus());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ApiError> handleValidationExceptions(MethodArgumentNotValidException ex,HttpServletRequest request) {
+    public ResponseEntity<ApiError> handleValidationExceptions(MethodArgumentNotValidException ex, HttpServletRequest request) {
         List<ApiError.DetailError> details = ex.getBindingResult()
                 .getFieldErrors()
                 .stream()
                 .map(error -> new ApiError.DetailError(error.getField(), error.getDefaultMessage()))
                 .collect(Collectors.toList());
 
-        return buildResponse(HttpStatus.BAD_REQUEST, "VALIDATION_ERROR", "Dữ liệu không hợp lệ", request.getRequestURI(), details);
-    }
-    private ResponseEntity<ApiError> buildResponse(HttpStatus status, String errorCode, String message, String path, List<ApiError.DetailError> details) {
         ApiError error = ApiError.builder()
                 .timestamp(LocalDateTime.now())
-                .status(status.value())
-                .errorCode(errorCode)
-                .message(message)
-                .path(path)
+                .status(HttpStatus.BAD_REQUEST.value())
+                .errorCode("VALIDATION_ERROR")
+                .message("Dữ liệu không hợp lệ")
+                .path(request.getRequestURI())
                 .details(details)
                 .build();
-        return new ResponseEntity<>(error, status);
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
+
 }
