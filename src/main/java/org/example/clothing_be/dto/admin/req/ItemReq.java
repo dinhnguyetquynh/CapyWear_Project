@@ -18,8 +18,8 @@ public class ItemReq {
     private String urlImg;
     @NotNull(message = "Giá sản phẩm không được để trống")
     @DecimalMin(value = "0.0", inclusive = false, message = "Giá sản phẩm phải lớn hơn 0")
-    private double price;
+    private Double price;
     @NotNull(message = "Số lượng tồn kho không được để trống")
     @Min(value = 0, message = "Số lượng tồn kho không được nhỏ hơn 0")
-    private int inventoryQty;
+    private Integer inventoryQty;
 }

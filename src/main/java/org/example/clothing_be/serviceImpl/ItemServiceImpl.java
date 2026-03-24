@@ -2,9 +2,11 @@ package org.example.clothing_be.serviceImpl;
 
 import lombok.RequiredArgsConstructor;
 import org.example.clothing_be.dto.admin.req.ItemReq;
+import org.example.clothing_be.dto.admin.req.ItemUpdateReq;
 import org.example.clothing_be.dto.general.res.ItemRes;
 import org.example.clothing_be.entity.Item;
 import org.example.clothing_be.exception.ItemAlreadyExistsException;
+import org.example.clothing_be.exception.ItemNotFoundException;
 import org.example.clothing_be.repository.ItemRepository;
 import org.example.clothing_be.service.ItemService;
 import org.springframework.data.domain.Page;
@@ -44,6 +46,20 @@ public class ItemServiceImpl implements ItemService {
         }
         Item newItem = itemRepository.save(toEntity(req));
         return toDTO(newItem);
+    }
+
+    @Transactional
+    @Override
+    public ItemRes updateItem(Integer id, ItemUpdateReq req) {
+        Item existingItem = itemRepository.findById(id)
+                .orElseThrow(() -> new ItemNotFoundException());
+
+        if (req.getName() != null) existingItem.setName(req.getName());
+        if (req.getPrice() != null) existingItem.setPrice(req.getPrice());
+        if (req.getUrlImg() != null) existingItem.setUrlImg(req.getUrlImg());
+        if (req.getInventoryQty() != null) existingItem.setInventoryQty(req.getInventoryQty());
+
+        return toDTO(itemRepository.save(existingItem));
     }
 
     private Item toEntity(ItemReq req){

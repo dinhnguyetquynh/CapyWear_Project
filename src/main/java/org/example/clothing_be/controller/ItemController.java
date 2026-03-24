@@ -3,6 +3,7 @@ package org.example.clothing_be.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.clothing_be.dto.admin.req.ItemReq;
+import org.example.clothing_be.dto.admin.req.ItemUpdateReq;
 import org.example.clothing_be.dto.general.res.ApiRes;
 import org.example.clothing_be.dto.general.res.ItemRes;
 import org.example.clothing_be.entity.Item;
@@ -33,8 +34,21 @@ public class ItemController {
                 .message("Thêm sản phẩm mới thành công !")
                 .result(itemRes)
                 .build();
-
-        // Trả về với HTTP Status 201 Created
         return ResponseEntity.status(HttpStatus.CREATED).body(res);
     }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<ApiRes<ItemRes>> updateItem(@PathVariable Integer id, @RequestBody ItemUpdateReq req) {
+
+        ItemRes result = itemService.updateItem(id, req);
+
+        ApiRes<ItemRes> response = ApiRes.<ItemRes>builder()
+                .code(1000)
+                .message("Item has been updated successfully")
+                .result(result)
+                .build();
+
+        return ResponseEntity.ok(response);
+    }
+
 }
