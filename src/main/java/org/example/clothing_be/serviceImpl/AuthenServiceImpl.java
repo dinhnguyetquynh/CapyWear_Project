@@ -11,7 +11,10 @@ import org.example.clothing_be.entity.Role;
 import org.example.clothing_be.entity.User;
 import org.example.clothing_be.entity.UserRole;
 import org.example.clothing_be.enums.Status;
-import org.example.clothing_be.exception.EmailUsedException;
+import org.example.clothing_be.exception.AppException;
+
+import org.example.clothing_be.exception.ErrorCode;
+
 import org.example.clothing_be.repository.RoleRepository;
 import org.example.clothing_be.repository.UserRepository;
 import org.example.clothing_be.service.AuthenService;
@@ -94,7 +97,7 @@ public class AuthenServiceImpl implements AuthenService {
     @Transactional
     public UserRes creatAccount(AccountCreateReq req) {
         if (userRepository.existsByEmail(req.getEmail())) {
-            throw new EmailUsedException("Email is used");
+            throw new AppException(ErrorCode.EMAIL_IS_USED);
         }
         String otp = generateOtp();
         sendOtpEmail(req.getEmail(), otp);
@@ -123,25 +126,21 @@ public class AuthenServiceImpl implements AuthenService {
     @Override
     public AuthResponse refreshToken(String oldRefreshToken) {
         try {
-            // 1. Validate token cũ (nếu hết hạn sẽ ném ExpiredJwtException)
             jwtUtils.validateToken(oldRefreshToken);
 
-            // 2. Trích xuất thông tin
             String email = jwtUtils.extractUsername(oldRefreshToken);
             User user = userRepository.findByEmail(email)
-                    .orElseThrow(() -> new RuntimeException("User không tồn tại"));
+                    .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
             List<String> roles = user.getUserRoles().stream()
                     .map(ur -> ur.getRole().getRoleName())
                     .toList();
 
-            // 3. Tạo Access Token mới, GIỮ NGUYÊN Refresh Token cũ
             String newAccessToken = jwtUtils.generateToken(email, roles);
 
             return new AuthResponse(newAccessToken, oldRefreshToken);
 
         } catch (ExpiredJwtException e) {
-            // Đây là nơi xử lý khi Refresh Token cũ đã hết hạn thực sự
             throw new RuntimeException("Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.");
         }
     }
@@ -149,11 +148,11 @@ public class AuthenServiceImpl implements AuthenService {
     @Override
     public AuthResponse login(LoginReq req) {
         User user = userRepository.findByEmail(req.getEmail())
-                .orElseThrow(() -> new RuntimeException("Email hoặc mật khẩu không chính xác"));
+                .orElseThrow(() -> new AppException(ErrorCode.EMAIL_PASS_NOT_CORRECT));
 
         boolean isPasswordMatch = passwordEncoder.matches(req.getPassword(), user.getPassword());
         if (!isPasswordMatch) {
-            throw new RuntimeException("Email hoặc mật khẩu không chính xác");
+            throw new AppException(ErrorCode.EMAIL_PASS_NOT_CORRECT);
         }
 
         List<String> roles = user.getUserRoles().stream()

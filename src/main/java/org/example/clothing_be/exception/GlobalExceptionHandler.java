@@ -13,48 +13,32 @@ import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-    @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<ApiError> handleNotFound(ResourceNotFoundException ex, HttpServletRequest request) {
-        ApiError error = ApiError.builder()
-                .timestamp(LocalDateTime.now())
-                .status(HttpStatus.NOT_FOUND.value())
-                .errorCode("RESOURCE_NOT_FOUND")
-                .message(ex.getMessage())
-                .path(request.getRequestURI())
-                .build();
-        return new ResponseEntity<>(error,HttpStatus.NOT_FOUND);
-    }
-    @ExceptionHandler(EmailUsedException.class)
-    public ResponseEntity<ApiError> handleEmailIsUsed(EmailUsedException ex, HttpServletRequest request) {
-        ApiError error = ApiError.builder()
-                .timestamp(LocalDateTime.now())
-                .status(HttpStatus.BAD_REQUEST.value())
-                .errorCode("EMAIL_IS_USED")
-                .message(ex.getMessage())
-                .path(request.getRequestURI())
-                .build();
-        return new ResponseEntity<>(error,HttpStatus.BAD_REQUEST);
+
+    @ExceptionHandler(AppException.class)
+    public ResponseEntity<ApiError> handleAppException(AppException ex, HttpServletRequest request) {
+        ErrorCode errorCode = ex.getErrorCode();
+        return buildResponse(errorCode.getStatus(), errorCode.getCode(), errorCode.getMessage(), request.getRequestURI(), null);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ApiError> handleValidationExceptions(MethodArgumentNotValidException ex) {
-        // 1. Lấy danh sách tất cả các lỗi field
+    public ResponseEntity<ApiError> handleValidationExceptions(MethodArgumentNotValidException ex,HttpServletRequest request) {
         List<ApiError.DetailError> details = ex.getBindingResult()
                 .getFieldErrors()
                 .stream()
                 .map(error -> new ApiError.DetailError(error.getField(), error.getDefaultMessage()))
                 .collect(Collectors.toList());
 
-        // 2. Build object ApiError chuẩn
-        ApiError apiError = ApiError.builder()
+        return buildResponse(HttpStatus.BAD_REQUEST, "VALIDATION_ERROR", "Dữ liệu không hợp lệ", request.getRequestURI(), details);
+    }
+    private ResponseEntity<ApiError> buildResponse(HttpStatus status, String errorCode, String message, String path, List<ApiError.DetailError> details) {
+        ApiError error = ApiError.builder()
                 .timestamp(LocalDateTime.now())
-                .status(HttpStatus.BAD_REQUEST.value())
-                .errorCode("VALIDATION_ERROR")
-                .message("Dữ liệu đầu vào không hợp lệ")
+                .status(status.value())
+                .errorCode(errorCode)
+                .message(message)
+                .path(path)
                 .details(details)
                 .build();
-
-        return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(error, status);
     }
-
 }
