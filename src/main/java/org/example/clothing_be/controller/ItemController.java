@@ -44,8 +44,21 @@ public class ItemController {
 
         ApiRes<ItemRes> response = ApiRes.<ItemRes>builder()
                 .code(1000)
-                .message("Item has been updated successfully")
+                .message("Cập nhật sản phẩm thành công")
                 .result(result)
+                .build();
+
+        return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiRes<Integer>> deleteItem(@PathVariable Integer id) {
+        itemService.deleteItem(id);
+
+        ApiRes<Integer> response = ApiRes.<Integer>builder()
+                .code(1000)
+                .message("Xoá sản phẩm thành công!")
+                .result(id)
                 .build();
 
         return ResponseEntity.ok(response);

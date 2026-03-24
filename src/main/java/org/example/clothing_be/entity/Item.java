@@ -18,4 +18,6 @@ public class Item {
     private String urlImg;
     private double price;
     private int inventoryQty;
+    @Column(name = "deleted", nullable = false)
+    private boolean deleted = false;
 }

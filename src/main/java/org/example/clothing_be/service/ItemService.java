@@ -11,4 +11,5 @@ public interface ItemService {
     Page<ItemRes> getAllItems(int page, int size);
     ItemRes createItem(ItemReq req);
     ItemRes updateItem(Integer id, ItemUpdateReq req);
+    void deleteItem(Integer id);
 }

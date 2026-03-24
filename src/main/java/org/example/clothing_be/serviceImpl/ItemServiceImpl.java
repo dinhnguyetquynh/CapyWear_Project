@@ -7,7 +7,9 @@ import org.example.clothing_be.dto.general.res.ItemRes;
 import org.example.clothing_be.entity.Item;
 import org.example.clothing_be.exception.ItemAlreadyExistsException;
 import org.example.clothing_be.exception.ItemNotFoundException;
+import org.example.clothing_be.repository.CartDetailRepository;
 import org.example.clothing_be.repository.ItemRepository;
+import org.example.clothing_be.repository.OrderDetailRepository;
 import org.example.clothing_be.service.ItemService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -21,6 +23,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ItemServiceImpl implements ItemService {
     private final ItemRepository itemRepository;
+    private final CartDetailRepository cartDetailRepository;
+    private final OrderDetailRepository orderDetailRepository;
 
     @Override
     public Page<ItemRes> getAllItems(int page, int size) {
@@ -61,6 +65,24 @@ public class ItemServiceImpl implements ItemService {
 
         return toDTO(itemRepository.save(existingItem));
     }
+
+    @Override
+    @Transactional
+    public void deleteItem(Integer id) {
+        Item item = itemRepository.findById(id)
+                .orElseThrow(() -> new ItemNotFoundException());
+
+        boolean isInCart = cartDetailRepository.existsByItemId(id);
+        boolean isInOrder = orderDetailRepository.existsByItemId(id);
+        if (isInCart || isInOrder) {
+            item.setDeleted(true);
+            itemRepository.save(item);
+
+        } else {
+            itemRepository.delete(item);
+        }
+    }
+
 
     private Item toEntity(ItemReq req){
         Item item = new Item();
