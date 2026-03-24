@@ -35,6 +35,11 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/public/**").permitAll()
+//                        // API dành riêng cho ADMIN
+//                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+//
+//                        // API dành cho cả USER và ADMIN
+//                        .requestMatchers("/api/user/**").hasAnyRole("USER", "ADMIN")
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(ex -> ex

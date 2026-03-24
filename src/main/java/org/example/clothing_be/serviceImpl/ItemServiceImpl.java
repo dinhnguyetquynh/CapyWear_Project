@@ -1,8 +1,10 @@
 package org.example.clothing_be.serviceImpl;
 
 import lombok.RequiredArgsConstructor;
+import org.example.clothing_be.dto.admin.req.ItemReq;
 import org.example.clothing_be.dto.general.res.ItemRes;
 import org.example.clothing_be.entity.Item;
+import org.example.clothing_be.exception.ItemAlreadyExistsException;
 import org.example.clothing_be.repository.ItemRepository;
 import org.example.clothing_be.service.ItemService;
 import org.springframework.data.domain.Page;
@@ -10,6 +12,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 @Service
@@ -32,4 +35,33 @@ public class ItemServiceImpl implements ItemService {
             return res;
         });
     }
+
+    @Transactional
+    @Override
+    public ItemRes createItem(ItemReq req) {
+        if (itemRepository.existsByName(req.getName())){
+            throw new ItemAlreadyExistsException();
+        }
+        Item newItem = itemRepository.save(toEntity(req));
+        return toDTO(newItem);
+    }
+
+    private Item toEntity(ItemReq req){
+        Item item = new Item();
+        item.setName(req.getName());
+        item.setPrice(req.getPrice());
+        item.setUrlImg(req.getUrlImg());
+        item.setInventoryQty(req.getInventoryQty());
+        return item;
+    }
+    private ItemRes toDTO(Item item){
+        ItemRes res = new ItemRes();
+        res.setId(item.getId());
+        res.setName(item.getName());
+        res.setPrice(item.getPrice());
+        res.setInventoryQty(item.getInventoryQty());
+        res.setUrlImg(item.getUrlImg());
+        return res;
+    }
+
 }
