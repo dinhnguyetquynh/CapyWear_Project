@@ -1,4 +1,4 @@
-package org.example.clothing_be.serviceImpl;
+package org.example.clothing_be.service.serviceImpl;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import lombok.RequiredArgsConstructor;

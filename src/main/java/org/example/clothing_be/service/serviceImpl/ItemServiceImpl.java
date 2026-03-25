@@ -1,4 +1,4 @@
-package org.example.clothing_be.serviceImpl;
+package org.example.clothing_be.service.serviceImpl;
 
 import lombok.RequiredArgsConstructor;
 import org.example.clothing_be.dto.admin.req.ItemReq;
