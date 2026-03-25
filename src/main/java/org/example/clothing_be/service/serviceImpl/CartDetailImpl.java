@@ -18,12 +18,17 @@ import org.example.clothing_be.repository.CartRepository;
 import org.example.clothing_be.repository.ItemRepository;
 import org.example.clothing_be.repository.UserRepository;
 import org.example.clothing_be.service.CartService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.file.AccessDeniedException;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -81,6 +86,26 @@ public class CartDetailImpl implements CartService {
         recalculateCartTotal(cart);
 
         return cartDetailRes;
+    }
+
+    //Function : get all cart detail of user
+    @Override
+    public List<CartDetailRes> getAllByUser(Long userId, int page, int size) {
+        String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        User currentUser = userRepository.findByEmail(userEmail)
+                .orElseThrow(()->new UserNotFoundException());
+
+        if(!currentUser.getId().equals(userId)){
+            throw new ForbiddenActionException();
+        }
+        Pageable pageable = PageRequest.of(page,size, Sort.by("id").descending());
+        List<CartDetail> cartDetails = cartDetailRepository.findAllByUserIdWithItem(userId);
+        List<CartDetailRes> cartDetailResList = new ArrayList<>();
+        for(CartDetail cartDetail:cartDetails){
+            CartDetailRes res = toCartDetailDTO(cartDetail);
+            cartDetailResList.add(res);
+        }
+        return cartDetailResList;
     }
 
     private void  recalculateCartTotal(Cart cart){
