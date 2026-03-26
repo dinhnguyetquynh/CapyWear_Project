@@ -12,6 +12,7 @@ import org.example.clothing_be.entity.User;
 import org.example.clothing_be.entity.UserRole;
 import org.example.clothing_be.enums.Status;
 
+
 import org.example.clothing_be.exception.EmailAlreadyExistsException;
 import org.example.clothing_be.exception.InvalidEmailException;
 import org.example.clothing_be.exception.UserNotFoundException;
@@ -102,7 +103,7 @@ public class AuthenServiceImpl implements AuthenService {
         String otp = generateOtp();
         sendOtpEmail(req.getEmail(), otp);
 
-        Role userRole = roleRepository.findByRoleName("USER")
+        Role userRole = roleRepository.findByRoleName(org.example.clothing_be.enums.Role.USER.name())
                 .orElseThrow(() -> new RuntimeException("NOT FIND ROLE"));
 
         User newUser = new User();

@@ -30,7 +30,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public Page<ItemRes> getAllItems(int page, int size) {
         Pageable pageable = PageRequest.of(page,size, Sort.by("id").descending());
-        Page<Item> itemPage = itemRepository.findAll(pageable);
+        Page<Item> itemPage = itemRepository.findAllByDeletedFalse(pageable);
 
         return itemPage.map(item -> {
             ItemRes res = new ItemRes();

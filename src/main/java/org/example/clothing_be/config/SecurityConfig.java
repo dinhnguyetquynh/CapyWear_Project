@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import jakarta.servlet.http.HttpServletResponse;
+import org.example.clothing_be.enums.Role;
 import org.example.clothing_be.exception.ApiError;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -35,11 +36,11 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/public/**").permitAll()
-                        // API dành riêng cho ADMIN
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        // API for Admin
+                        .requestMatchers("/api/admin/**").hasRole(Role.ADMIN.name())
 
-                        // API dành cho cả USER và ADMIN
-                        .requestMatchers("/api/user/**").hasAnyRole("USER", "ADMIN")
+                        // API for both user, admin
+                        .requestMatchers("/api/user/**").hasAnyRole(Role.ADMIN.name(), Role.USER.name())
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(ex -> ex
@@ -87,9 +88,7 @@ public class SecurityConfig {
                 .path(path)
                 .build();
 
-        // Dùng Jackson ObjectMapper để convert Object sang JSON String
         ObjectMapper mapper = new ObjectMapper();
-        // Đảm bảo LocalDateTime được format đúng (cần JavaTimeModule)
         mapper.registerModule(new JavaTimeModule());
         mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 

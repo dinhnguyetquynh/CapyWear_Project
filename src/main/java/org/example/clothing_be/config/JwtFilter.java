@@ -47,8 +47,6 @@ public class JwtFilter extends OncePerRequestFilter {
                 }
             }
         } catch (Exception e) {
-            //  Quan trọng: KHÔNG throw tiếp
-            // chỉ log thôi để request vẫn chạy tiếp
             SecurityContextHolder.clearContext();
             log.error("JWT processing failed: {}", e.getMessage(), e);
         }
