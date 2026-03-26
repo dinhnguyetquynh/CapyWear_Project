@@ -8,4 +8,6 @@ import java.util.List;
 public interface CartService {
     CartDetailRes addItem(Long userId,CartDetailReq req);
     List<CartDetailRes> getAllByUser(Long userId, int page, int size);
+    CartDetailRes updateCartDetail(Integer id,Integer quantity);
+    void deleteCartDetail(Integer cartDetailId);
 }

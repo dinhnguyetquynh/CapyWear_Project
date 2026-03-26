@@ -9,10 +9,7 @@ import org.example.clothing_be.entity.Cart;
 import org.example.clothing_be.entity.CartDetail;
 import org.example.clothing_be.entity.Item;
 import org.example.clothing_be.entity.User;
-import org.example.clothing_be.exception.ForbiddenActionException;
-import org.example.clothing_be.exception.ItemNotFoundException;
-import org.example.clothing_be.exception.ProductNotAvailableException;
-import org.example.clothing_be.exception.UserNotFoundException;
+import org.example.clothing_be.exception.*;
 import org.example.clothing_be.repository.CartDetailRepository;
 import org.example.clothing_be.repository.CartRepository;
 import org.example.clothing_be.repository.ItemRepository;
@@ -106,6 +103,37 @@ public class CartDetailImpl implements CartService {
             cartDetailResList.add(res);
         }
         return cartDetailResList;
+    }
+
+    @Override
+    @Transactional
+    public CartDetailRes updateCartDetail(Integer id,Integer quantity) {
+        CartDetail cartDetail = cartDetailRepository.findById(id)
+                .orElseThrow(()-> new CartDetailNotFound("Không tìm thấy cart detail"+":id"));
+        cartDetail.setQuantity(quantity);
+        cartDetail.setTotalItem(cartDetail.getQuantity()*cartDetail.getPurchasePrice());
+        CartDetail updateCart = cartDetailRepository.save(cartDetail);
+
+        Cart cart = cartDetail.getCart();
+        recalculateCartTotal(cart);
+        return toCartDetailDTO(updateCart);
+    }
+
+
+    @Override
+    @Transactional
+    public void deleteCartDetail(Integer cartDetailId) {
+        CartDetail cartDetail = cartDetailRepository.findById(cartDetailId)
+                .orElseThrow(()-> new CartDetailNotFound(""));
+        Integer cartId = cartDetail.getCart().getId();
+
+        Cart cart = cartRepository.findById(cartId)
+                .orElseThrow(()-> new ResourceNotFoundException("Không tìm thấy cart có id: "+cartId));
+        double newTotal = cart.getTotalCart()-cartDetail.getTotalItem();
+        cart.setTotalCart(Math.max(0, newTotal));
+
+        cartDetailRepository.delete(cartDetail);
+        cartRepository.save(cart);
     }
 
     private void  recalculateCartTotal(Cart cart){

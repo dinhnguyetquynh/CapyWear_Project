@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.clothing_be.dto.admin.req.CartDetailReq;
 import org.example.clothing_be.dto.admin.res.CartDetailRes;
 import org.example.clothing_be.dto.general.res.ApiRes;
+import org.example.clothing_be.repository.CartDetailRepository;
 import org.example.clothing_be.service.CartService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +18,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CartController {
     private final CartService cartService;
+    private final CartDetailRepository cartDetailRepository;
+
     @PostMapping("/add-item/{userId}")
     public ResponseEntity<ApiRes<CartDetailRes>> addItem(@PathVariable Long userId, @Valid @RequestBody CartDetailReq req){
         CartDetailRes res = cartService.addItem(userId,req);
@@ -29,13 +32,40 @@ public class CartController {
     }
 
     @GetMapping("/detail/{userId}")
-    public ResponseEntity<List<CartDetailRes>> getCartDetailsByUser(
+    public ResponseEntity<ApiRes<List<CartDetailRes>>> getCartDetailsByUser(
             @PathVariable Long userId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
         List<CartDetailRes> cartDetails = cartService.getAllByUser(userId, page, size);
-        return ResponseEntity.ok(cartDetails);
+        ApiRes<List<CartDetailRes>> res = ApiRes.<List<CartDetailRes>>builder()
+                .code(200)
+                .message("Lấy danh sách sản phẩm trong giỏ hàng thành công")
+                .result(cartDetails)
+                .build();
+        return ResponseEntity.ok(res);
+
     }
 
+    @PatchMapping("/update/{cdId}")
+    public ResponseEntity<ApiRes<CartDetailRes>> updateCartDetail(@PathVariable Integer cdId,@RequestParam Integer quantity){
+        CartDetailRes detailRes = cartService.updateCartDetail(cdId, quantity);
+        ApiRes<CartDetailRes> respone = ApiRes.<CartDetailRes>builder()
+                .code(201)
+                .message("Cập nhật số lượng sản phẩm thành công")
+                .result(detailRes)
+                .build();
+        return ResponseEntity.ok(respone);
+    }
+    @DeleteMapping("/{cartDetailId}")
+    public ResponseEntity<ApiRes<Void>> deleteCartDetail(@PathVariable Integer cartDetailId) {
+        cartService.deleteCartDetail(cartDetailId);
+
+        ApiRes<Void> res = ApiRes.<Void>builder()
+                .code(200)
+                .message("Xóa sản phẩm khỏi giỏ hàng thành công")
+                .build();
+
+        return ResponseEntity.ok(res);
+    }
 }
