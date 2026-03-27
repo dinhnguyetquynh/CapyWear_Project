@@ -17,4 +17,5 @@ public interface ItemRepository extends JpaRepository<Item,Integer> {
     List<Item> findTop10ByNameStartingWithIgnoreCase(String name);
     @Query("SELECT i FROM Item i WHERE i.inventoryQty <= :qty AND i.deleted = false")
     List<Item> findLowStockItems(@Param("qty") int qty);
+
 }

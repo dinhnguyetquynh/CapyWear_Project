@@ -1,6 +1,7 @@
 package org.example.clothing_be.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.example.clothing_be.dto.admin.res.OrderPendingRes;
 import org.example.clothing_be.dto.general.res.ApiRes;
 import org.example.clothing_be.dto.users.request.OrderRequest;
 import org.example.clothing_be.dto.users.respone.OrderResponse;
@@ -36,5 +37,29 @@ public class OrderController {
                 .result(responseList)
                 .build();
         return ResponseEntity.ok(res);
+    }
+
+    //Function for admin
+    @GetMapping("/pending")
+    public ResponseEntity<ApiRes<List<OrderPendingRes>>> getOrdersPending(){
+        List<OrderPendingRes> responseList = orderService.getOrdersPending();
+        ApiRes<List<OrderPendingRes>> res = ApiRes.<List<OrderPendingRes>>builder()
+                .code(200)
+                .message("Lấy danh sách đơn hàng đang xử lý thành công")
+                .result(responseList)
+                .build();
+        return ResponseEntity.ok(res);
+    }
+
+    //function for admin
+    @PatchMapping("/{orderId}")
+    public ResponseEntity<ApiRes<OrderPendingRes>> changeStatusOrder(@PathVariable Integer orderId){
+        OrderPendingRes order = orderService.changeStatusOrder(orderId);
+        ApiRes<OrderPendingRes>res = ApiRes.<OrderPendingRes>builder()
+                .code(201)
+                .message("Thay đổi trạng thái đơn hàng thành công ")
+                .result(order)
+                .build();
+        return ResponseEntity.status(HttpStatus.CREATED).body(res);
     }
 }

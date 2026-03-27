@@ -1,6 +1,7 @@
 package org.example.clothing_be.service.serviceImpl;
 
 import lombok.RequiredArgsConstructor;
+import org.example.clothing_be.dto.admin.res.OrderPendingRes;
 import org.example.clothing_be.dto.users.request.OrderRequest;
 import org.example.clothing_be.dto.users.respone.OrderDetailDTO;
 import org.example.clothing_be.dto.users.respone.OrderResponse;
@@ -9,6 +10,7 @@ import org.example.clothing_be.entity.OrderDetail;
 import org.example.clothing_be.entity.Orders;
 import org.example.clothing_be.entity.User;
 import org.example.clothing_be.enums.OrderStatus;
+import org.example.clothing_be.exception.ResourceNotFoundException;
 import org.example.clothing_be.repository.ItemRepository;
 import org.example.clothing_be.repository.OrdersRepository;
 import org.example.clothing_be.repository.UserRepository;
@@ -75,6 +77,50 @@ public class OrderServiceImpl implements OrderService {
         }
         return orderResponsesList;
     }
+
+    @Override
+    public List<OrderPendingRes> getOrdersPending() {
+        List<Orders> ordersList = orderRepository.findAllByStatus(OrderStatus.PENDING);
+        List<OrderPendingRes> orderResponseList = new ArrayList<>();
+        for(Orders o:ordersList){
+            OrderPendingRes orderResponse = mapToDTO(o);
+            orderResponseList.add(orderResponse);
+        }
+        return orderResponseList;
+    }
+
+    @Override
+    public OrderPendingRes changeStatusOrder(Integer orderId) {
+        Orders orders = orderRepository.findById(orderId)
+                .orElseThrow(()-> new ResourceNotFoundException(""));
+
+        orders.setStatus(OrderStatus.COMPLETE);
+        Orders saveOrder = orderRepository.save(orders);
+
+        return mapToDTO(saveOrder);
+    }
+
+    private OrderPendingRes mapToDTO(Orders order) {
+        OrderPendingRes response = new OrderPendingRes();
+        response.setOrderId(order.getId());
+        response.setUserEmail(order.getUser().getEmail());
+        response.setOrderDate(LocalDateTime.now()); // Hoặc dùng order.getOrderDate()
+        response.setTotalOrder(order.getTotalOrder());
+        response.setStatus(order.getStatus());
+
+        List<OrderDetailDTO> details = order.getOrderDetails().stream().map(d -> {
+            OrderDetailDTO dto = new OrderDetailDTO();
+            dto.setItemName(d.getItem().getName());
+            dto.setQuantity(d.getQuantity());
+            dto.setPrice(d.getPurchasedPrice());
+            dto.setTotal(d.getTotalItem());
+            return dto;
+        }).collect(Collectors.toList());
+
+        response.setDetails(details);
+        return response;
+    }
+
 
 
     private OrderResponse mapToResponse(Orders order) {
