@@ -12,4 +12,5 @@ import java.util.List;
 public interface ItemRepository extends JpaRepository<Item,Integer> {
     boolean existsByName(String name);
     Page<Item> findAllByDeletedFalse(Pageable pageable);
+    List<Item> findTop10ByNameStartingWithIgnoreCase(String name);
 }

@@ -18,6 +18,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 @Service
 @RequiredArgsConstructor
@@ -82,6 +83,17 @@ public class ItemServiceImpl implements ItemService {
         } else {
             itemRepository.delete(item);
         }
+    }
+
+    @Override
+    public List<ItemRes> findTop10Item(String name) {
+        List<Item> itemList = itemRepository.findTop10ByNameStartingWithIgnoreCase(name);
+        List<ItemRes> itemResList = new ArrayList<>();
+        for(Item item: itemList){
+            ItemRes res = toDTO(item);
+            itemResList.add(res);
+        }
+        return itemResList;
     }
 
 

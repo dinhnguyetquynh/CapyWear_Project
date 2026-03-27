@@ -13,6 +13,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+
 @RestController
 @RequestMapping("/api/auth/item")
 @RequiredArgsConstructor
@@ -62,6 +66,28 @@ public class ItemController {
                 .build();
 
         return ResponseEntity.ok(response);
+    }
+    @GetMapping("/search/suggest")
+    public ResponseEntity <ApiRes<List<String>>>  getSuggestions(@RequestParam String q) {
+        if (q.length() < 2) {
+            ApiRes<List<String>> listApiRes = ApiRes.<List<String>>builder()
+                    .code(200)
+                    .message("Từ khoá có độ dài nhỏ hơn 2 kí tự.")
+                    .result(Collections.emptyList())
+                    .build();
+            return ResponseEntity.ok(listApiRes);
+        }
+        List<ItemRes> items = itemService.findTop10Item(q);
+        List<String> suggestions = items.stream()
+                .map(ItemRes::getName)
+                .collect(Collectors.toList());
+
+        ApiRes<List<String>> itemsRes = ApiRes.<List<String>>builder()
+                .code(200)
+                .message("Lấy danh sách các sản phẩm theo từ khoá thành công")
+                .result(suggestions)
+                .build();
+        return ResponseEntity.ok(itemsRes);
     }
 
 }
