@@ -90,4 +90,16 @@ public class ItemController {
         return ResponseEntity.ok(itemsRes);
     }
 
+    @GetMapping("/out-of-stock")
+    public ResponseEntity<ApiRes<List<ItemRes>>> findLowStockItems(){
+        List<ItemRes> itemResList = itemService.findLowStockItems();
+
+        ApiRes<List<ItemRes>> res = ApiRes.<List<ItemRes>>builder()
+                .code(200)
+                .message("Lấy danh sách các sản phẩm hết hàng thành công")
+                .result(itemResList)
+                .build();
+        return ResponseEntity.ok(res);
+    }
+
 }

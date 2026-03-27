@@ -96,6 +96,18 @@ public class ItemServiceImpl implements ItemService {
         return itemResList;
     }
 
+    @Override
+    public List<ItemRes> findLowStockItems() {
+        List<Item> itemList = itemRepository.findLowStockItems(1);
+
+        List<ItemRes> itemResList = new ArrayList<>();
+        for(Item item:itemList){
+            ItemRes res = toDTO(item);
+            itemResList.add(res);
+        }
+        return itemResList;
+    }
+
 
     private Item toEntity(ItemReq req){
         Item item = new Item();
