@@ -25,10 +25,10 @@ public class JwtUtils {
         return Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
     }
 
-    public String generateToken(String username, List<String> roles) {
+    public String generateToken(String username, List<String> authorities) {
         return Jwts.builder()
                 .setSubject(username)
-                .claim("roles", roles)
+                .claim("authorities", authorities)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
@@ -53,21 +53,20 @@ public class JwtUtils {
                 .getSubject();
     }
 
-    public List<String> extractRoles(String token) {
+    public List<String> extractAuthorities(String token) {
         Claims claims = Jwts.parserBuilder()
                 .setSigningKey(getSigningKey())
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
 
-        Object rolesObj = claims.get("roles");
+        Object authoritiesObj = claims.get("authorities");
 
-        if (rolesObj instanceof List<?>) {
-            return ((List<?>) rolesObj).stream()
+        if (authoritiesObj instanceof List<?>) {
+            return ((List<?>) authoritiesObj).stream()
                     .map(Object::toString)
                     .toList();
         }
-
         return List.of();
     }
 

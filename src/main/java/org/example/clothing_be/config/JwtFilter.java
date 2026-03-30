@@ -34,10 +34,19 @@ public class JwtFilter extends OncePerRequestFilter {
                 if (jwtUtils.validateToken(token) && SecurityContextHolder.getContext().getAuthentication() == null) {
 
                     String username = jwtUtils.extractUsername(token);
-                    List<String> roles = jwtUtils.extractRoles(token);
+//                    List<String> roles = jwtUtils.extractRoles(token);
 
-                    List<SimpleGrantedAuthority> authorities = roles.stream()
-                            .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
+//                    List<SimpleGrantedAuthority> authorities = roles.stream()
+//                            .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
+//                            .toList();
+
+                    // Đổi tên hàm gọi
+                    List<String> authoritiesList = jwtUtils.extractAuthorities(token);
+
+                    // QUAN TRỌNG: Không cộng chuỗi "ROLE_" nữa!
+                    List<SimpleGrantedAuthority> authorities = authoritiesList.stream()
+                            .map(authority -> new SimpleGrantedAuthority(authority))
+                            // Có thể viết gọn là: .map(SimpleGrantedAuthority::new)
                             .toList();
 
                     UsernamePasswordAuthenticationToken authToken =

@@ -18,10 +18,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/auth/item")
+@RequestMapping("/api/item")
 @RequiredArgsConstructor
 public class ItemController {
     private final ItemService itemService;
+
     @GetMapping
     public ResponseEntity<Page<ItemRes>> getAllItems(@RequestParam(name = "page", defaultValue = "0") int page,
                                                      @RequestParam(name = "size", defaultValue = "10") int size){

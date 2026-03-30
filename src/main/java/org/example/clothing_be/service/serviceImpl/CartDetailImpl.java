@@ -37,17 +37,14 @@ public class CartDetailImpl implements CartService {
     private final CartDetailRepository cartDetailRepository;
     private final UserRepository userRepository;
 
-    //Function : add an item in cart
+    //Function : add an item to cart
     @Override
     @Transactional
-    public CartDetailRes addItem(Long userId,CartDetailReq req) {
+    public CartDetailRes addItem(CartDetailReq req) {
         String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
         User currentUser = userRepository.findByEmail(userEmail)
                 .orElseThrow(()->new UserNotFoundException());
 
-        if(!currentUser.getId().equals(userId)){
-            throw new ForbiddenActionException();
-        }
         //Dành cho trường hợp sản phẩm đã được xoá hoặc ngưng bán rồi nhưng UI chưa load kịp
         Item item = itemRepository.findById(req.getItemId())
                 .orElseThrow(()-> new ItemNotFoundException());
@@ -55,7 +52,7 @@ public class CartDetailImpl implements CartService {
             throw new ProductNotAvailableException();
         }
 
-        Cart cart = cartRepository.findByUserId(userId)
+        Cart cart = cartRepository.findByUserId(currentUser.getId())
                 .orElseGet(()->{
                     Cart cart1 = new Cart();
                     cart1.setUser(currentUser);
@@ -87,16 +84,16 @@ public class CartDetailImpl implements CartService {
 
     //Function : get all cart detail of user
     @Override
-    public List<CartDetailRes> getAllByUser(Long userId, int page, int size) {
+    public List<CartDetailRes> getAllByUser(int page, int size) {
         String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
         User currentUser = userRepository.findByEmail(userEmail)
                 .orElseThrow(()->new UserNotFoundException());
 
-        if(!currentUser.getId().equals(userId)){
+        if(!currentUser.getId().equals(currentUser.getId())){
             throw new ForbiddenActionException();
         }
         Pageable pageable = PageRequest.of(page,size, Sort.by("id").descending());
-        List<CartDetail> cartDetails = cartDetailRepository.findAllByUserIdWithItem(userId);
+        List<CartDetail> cartDetails = cartDetailRepository.findAllByUserIdWithItem(currentUser.getId());
         List<CartDetailRes> cartDetailResList = new ArrayList<>();
         for(CartDetail cartDetail:cartDetails){
             CartDetailRes res = toCartDetailDTO(cartDetail);

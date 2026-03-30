@@ -14,15 +14,15 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("api/user/cart")
+@RequestMapping("/api/cart")
 @RequiredArgsConstructor
 public class CartController {
     private final CartService cartService;
     private final CartDetailRepository cartDetailRepository;
 
-    @PostMapping("/add-item/{userId}")
-    public ResponseEntity<ApiRes<CartDetailRes>> addItem(@PathVariable Long userId, @Valid @RequestBody CartDetailReq req){
-        CartDetailRes res = cartService.addItem(userId,req);
+    @PostMapping("/add-item")
+    public ResponseEntity<ApiRes<CartDetailRes>> addItem( @Valid @RequestBody CartDetailReq req){
+        CartDetailRes res = cartService.addItem(req);
         ApiRes<CartDetailRes> respone = ApiRes.<CartDetailRes>builder()
                 .code(1000)
                 .message("Thêm sản phẩm vào giỏ hàng thành công")
@@ -31,13 +31,12 @@ public class CartController {
         return ResponseEntity.status(HttpStatus.CREATED).body(respone);
     }
 
-    @GetMapping("/detail/{userId}")
+    @GetMapping("/detail")
     public ResponseEntity<ApiRes<List<CartDetailRes>>> getCartDetailsByUser(
-            @PathVariable Long userId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
-        List<CartDetailRes> cartDetails = cartService.getAllByUser(userId, page, size);
+        List<CartDetailRes> cartDetails = cartService.getAllByUser(page, size);
         ApiRes<List<CartDetailRes>> res = ApiRes.<List<CartDetailRes>>builder()
                 .code(200)
                 .message("Lấy danh sách sản phẩm trong giỏ hàng thành công")

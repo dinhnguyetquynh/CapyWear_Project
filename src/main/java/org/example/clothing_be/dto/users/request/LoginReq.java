@@ -13,6 +13,5 @@ public class LoginReq {
     private String email;
 
     @NotBlank(message = "Mật khẩu không được để trống")
-    @ToString.Exclude
     private String password;
 }

@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface OrderService {
     OrderResponse createOrder(OrderRequest request);
-    List<OrderResponse> getOrdersHistory(Long userId);
+    List<OrderResponse> getOrdersHistory();
     List<OrderPendingRes> getOrdersPending();
     OrderPendingRes changeStatusOrder(Integer orderId);
 }

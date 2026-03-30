@@ -30,17 +30,17 @@ public class SecurityConfig {
     private JwtFilter jwtFilter;
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, DynamicPermissionFilter dynamicPermissionFilter) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/public/**").permitAll()
-                        // API for Admin
-                        .requestMatchers("/api/admin/**").hasRole(Role.ADMIN.name())
-
-                        // API for both user, admin
-                        .requestMatchers("/api/user/**").hasAnyRole(Role.ADMIN.name(), Role.USER.name())
+//                        // API for Admin
+//                        .requestMatchers("/api/auth/*/admin/**").hasRole(Role.ADMIN.name())
+//
+//                        // API for both user, admin
+//                        .requestMatchers("/api/auth/**").hasAnyRole(Role.ADMIN.name(), Role.USER.name())
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(ex -> ex
@@ -66,6 +66,7 @@ public class SecurityConfig {
 
 
         http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+        http.addFilterAfter(dynamicPermissionFilter, JwtFilter.class);
 
         return http.build();
     }

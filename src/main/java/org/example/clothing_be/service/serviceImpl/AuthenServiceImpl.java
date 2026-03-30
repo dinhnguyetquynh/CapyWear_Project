@@ -2,14 +2,13 @@ package org.example.clothing_be.service.serviceImpl;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.example.clothing_be.config.JwtUtils;
 import org.example.clothing_be.dto.auth.AuthResponse;
 import org.example.clothing_be.dto.users.request.AccountCreateReq;
 import org.example.clothing_be.dto.users.request.LoginReq;
 import org.example.clothing_be.dto.users.respone.UserRes;
-import org.example.clothing_be.entity.Role;
-import org.example.clothing_be.entity.User;
-import org.example.clothing_be.entity.UserRole;
+import org.example.clothing_be.entity.*;
 import org.example.clothing_be.enums.Status;
 
 
@@ -29,10 +28,14 @@ import org.springframework.transaction.annotation.Transactional;
 import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AuthenServiceImpl implements AuthenService {
     private final JavaMailSender mailSender;
     private static final String CHARACTERS = "0123456789";
@@ -52,6 +55,7 @@ public class AuthenServiceImpl implements AuthenService {
             int index = secureRandom.nextInt(CHARACTERS.length());
             otp.append(CHARACTERS.charAt(index));
         }
+
         return otp.toString();
     }
 
@@ -147,6 +151,7 @@ public class AuthenServiceImpl implements AuthenService {
     }
 
     @Override
+    @Transactional
     public AuthResponse login(LoginReq req) {
         User user = userRepository.findByEmail(req.getEmail())
                 .orElseThrow(() -> new InvalidEmailException());
@@ -156,10 +161,29 @@ public class AuthenServiceImpl implements AuthenService {
             throw new InvalidEmailException();
         }
 
-        List<String> roles = user.getUserRoles().stream()
-                .map(userRole -> userRole.getRole().getRoleName())
-                .toList();
-        String accessToken = jwtUtils.generateToken(user.getEmail(), roles);
+        Set<String> authorities = new HashSet<>();
+        for (UserRole userRole : user.getUserRoles()) {
+            Role role = userRole.getRole();
+            for (RolePermission rolePermission : role.getRolePermissions()) {
+                Permission perm = rolePermission.getPermission();
+                if (perm.getAction() != null && perm.getResource() != null) {
+                    authorities.add(perm.getAction() + ":" + perm.getResource());
+                }
+            }
+        }
+
+        if (user.getUserPermissions() != null) {
+            for (UserPermission userPermission : user.getUserPermissions()) {
+                Permission perm = userPermission.getPermission();
+                if (perm.getAction() != null && perm.getResource() != null) {
+                    authorities.add(perm.getAction() + ":" + perm.getResource());
+                }
+            }
+        }
+
+        List<String> authorityList = new ArrayList<>(authorities);
+
+        String accessToken = jwtUtils.generateToken(user.getEmail(), authorityList);
         String refreshToken = jwtUtils.generateRefreshToken(user.getEmail());
 
         return new AuthResponse(accessToken, refreshToken);

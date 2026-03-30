@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/user/order")
+@RequestMapping("/api/order")
 @RequiredArgsConstructor
 public class OrderController {
     private final OrderService orderService;
@@ -28,9 +28,9 @@ public class OrderController {
         return ResponseEntity.status(HttpStatus.CREATED).body(res);
     }
 
-    @GetMapping("/{userId}")
-    public ResponseEntity<ApiRes<List<OrderResponse>>> getOrdersHistory(@PathVariable Long userId){
-        List<OrderResponse> responseList = orderService.getOrdersHistory(userId);
+    @GetMapping("/history")
+    public ResponseEntity<ApiRes<List<OrderResponse>>> getOrdersHistory(){
+        List<OrderResponse> responseList = orderService.getOrdersHistory();
         ApiRes<List<OrderResponse>> res = ApiRes.<List<OrderResponse>>builder()
                 .code(200)
                 .message("Lấy danh sách lịch sử đơn hàng thành công")

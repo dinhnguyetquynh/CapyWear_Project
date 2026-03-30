@@ -16,6 +16,7 @@ import org.example.clothing_be.repository.OrdersRepository;
 import org.example.clothing_be.repository.UserRepository;
 import org.example.clothing_be.service.OrderService;
 import org.hibernate.query.Order;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -68,8 +69,11 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public List<OrderResponse> getOrdersHistory(Long userId) {
-        List<Orders> ordersList = orderRepository.getAllByUser_Id(userId);
+    public List<OrderResponse> getOrdersHistory() {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByEmail(username)
+                .orElseThrow(()-> new ResourceNotFoundException(""));
+        List<Orders> ordersList = orderRepository.getAllByUser_Id(user.getId());
         List<OrderResponse> orderResponsesList = new ArrayList<>();
         for(Orders order : ordersList){
             OrderResponse orderResponse = mapToResponse(order);
