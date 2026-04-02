@@ -9,8 +9,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CartDetailReq {
-    @NotBlank
     private Integer itemId;
-    @NotBlank
     private Integer quantity;
 }

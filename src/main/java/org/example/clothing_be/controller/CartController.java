@@ -24,7 +24,7 @@ public class CartController {
     public ResponseEntity<ApiRes<CartDetailRes>> addItem( @Valid @RequestBody CartDetailReq req){
         CartDetailRes res = cartService.addItem(req);
         ApiRes<CartDetailRes> respone = ApiRes.<CartDetailRes>builder()
-                .code(1000)
+                .code(200)
                 .message("Thêm sản phẩm vào giỏ hàng thành công")
                 .result(res)
                 .build();

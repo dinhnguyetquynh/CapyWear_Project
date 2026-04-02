@@ -6,6 +6,7 @@ import org.example.clothing_be.dto.admin.req.ItemReq;
 import org.example.clothing_be.dto.admin.req.ItemUpdateReq;
 import org.example.clothing_be.dto.general.res.ApiRes;
 import org.example.clothing_be.dto.general.res.ItemRes;
+import org.example.clothing_be.dto.general.res.PageResponse;
 import org.example.clothing_be.entity.Item;
 import org.example.clothing_be.service.ItemService;
 import org.springframework.data.domain.Page;
@@ -24,12 +25,13 @@ public class ItemController {
     private final ItemService itemService;
 
     @GetMapping
-    public ResponseEntity<Page<ItemRes>> getAllItems(@RequestParam(name = "page", defaultValue = "0") int page,
-                                                     @RequestParam(name = "size", defaultValue = "10") int size){
-        Page<ItemRes> result = itemService.getAllItems(page, size);
+    public ResponseEntity<PageResponse<ItemRes>> getAllItems(
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "10") int size) {
+
+        PageResponse<ItemRes> result = itemService.getAllItems(page, size);
         return ResponseEntity.ok(result);
     }
-
     @PostMapping
     public ResponseEntity<ApiRes<ItemRes>> createItem(@Valid @RequestBody ItemReq req){
         ItemRes itemRes = itemService.createItem(req);
@@ -101,6 +103,13 @@ public class ItemController {
                 .result(itemResList)
                 .build();
         return ResponseEntity.ok(res);
+    }
+
+    @GetMapping("/{itemId}")
+    public ResponseEntity<ApiRes<ItemRes>> getItemDetail(@PathVariable int itemId){
+        ItemRes itemRes = itemService.getItemDetail(itemId);
+        return ResponseEntity.ok()
+                .body(ApiRes.success(200,itemRes,"Lấy chi tiết sản phẩm thành công"));
     }
 
 }

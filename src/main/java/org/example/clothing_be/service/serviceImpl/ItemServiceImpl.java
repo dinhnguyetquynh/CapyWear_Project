@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.clothing_be.dto.admin.req.ItemReq;
 import org.example.clothing_be.dto.admin.req.ItemUpdateReq;
 import org.example.clothing_be.dto.general.res.ItemRes;
+import org.example.clothing_be.dto.general.res.PageResponse;
 import org.example.clothing_be.entity.Item;
 import org.example.clothing_be.exception.ItemAlreadyExistsException;
 import org.example.clothing_be.exception.ItemNotFoundException;
@@ -28,12 +29,29 @@ public class ItemServiceImpl implements ItemService {
     private final OrderDetailRepository orderDetailRepository;
 
     //Filter item deleted
+//    @Override
+//    public Page<ItemRes> getAllItems(int page, int size) {
+//        Pageable pageable = PageRequest.of(page,size, Sort.by("id").descending());
+//        Page<Item> itemPage = itemRepository.findAllByDeletedFalse(pageable);
+//
+//        return itemPage.map(item -> {
+//            ItemRes res = new ItemRes();
+//            res.setId(item.getId());
+//            res.setName(item.getName());
+//            res.setPrice(item.getPrice());
+//            res.setInventoryQty(item.getInventoryQty());
+//            res.setUrlImg(item.getUrlImg());
+//            return res;
+//        });
+//    }
+
     @Override
-    public Page<ItemRes> getAllItems(int page, int size) {
-        Pageable pageable = PageRequest.of(page,size, Sort.by("id").descending());
+    public PageResponse<ItemRes> getAllItems(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
         Page<Item> itemPage = itemRepository.findAllByDeletedFalse(pageable);
 
-        return itemPage.map(item -> {
+        // 1. Chuyển đổi từ Item sang ItemRes (vẫn dùng map của Page)
+        List<ItemRes> content = itemPage.map(item -> {
             ItemRes res = new ItemRes();
             res.setId(item.getId());
             res.setName(item.getName());
@@ -41,7 +59,17 @@ public class ItemServiceImpl implements ItemService {
             res.setInventoryQty(item.getInventoryQty());
             res.setUrlImg(item.getUrlImg());
             return res;
-        });
+        }).getContent(); // Lấy list ra từ Page
+
+        // 2. Build đối tượng PageResponse đã tạo ở Bước 1
+        return PageResponse.<ItemRes>builder()
+                .content(content)
+                .pageNo(itemPage.getNumber())
+                .pageSize(itemPage.getSize())
+                .totalElements(itemPage.getTotalElements())
+                .totalPages(itemPage.getTotalPages())
+                .last(itemPage.isLast())
+                .build();
     }
 
     @Transactional
@@ -106,6 +134,13 @@ public class ItemServiceImpl implements ItemService {
             itemResList.add(res);
         }
         return itemResList;
+    }
+
+    @Override
+    public ItemRes getItemDetail(int itemId) {
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(()-> new ItemNotFoundException());
+        return toDTO(item);
     }
 
 

@@ -8,10 +8,12 @@ import lombok.Data;
 public class AuthResponse {
     private String accessToken;
     private String refreshToken;
+    private int expiresIn;
     private String tokenType = "Bearer";
 
-    public AuthResponse(String accessToken, String refreshToken) {
+    public AuthResponse(String accessToken, String refreshToken,int expiresIn) {
         this.accessToken = accessToken;
         this.refreshToken = refreshToken;
+        this.expiresIn=expiresIn;
     }
 }

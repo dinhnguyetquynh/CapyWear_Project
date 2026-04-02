@@ -9,6 +9,7 @@ import org.example.clothing_be.exception.ApiError;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -36,11 +37,8 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/public/**").permitAll()
-//                        // API for Admin
-//                        .requestMatchers("/api/auth/*/admin/**").hasRole(Role.ADMIN.name())
-//
-//                        // API for both user, admin
-//                        .requestMatchers("/api/auth/**").hasAnyRole(Role.ADMIN.name(), Role.USER.name())
+                        .requestMatchers(HttpMethod.GET, "/api/item").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/item/{itemId}").permitAll()
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(ex -> ex

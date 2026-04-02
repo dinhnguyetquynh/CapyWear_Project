@@ -47,6 +47,8 @@ public class AuthenServiceImpl implements AuthenService {
     private final JwtUtils jwtUtils;
     @Value("${spring.mail.username}")
     private String fromEmail;
+    @Value("${jwt.expiration}")
+    private int expiresIn;
 
     @Override
     public String generateOtp() {
@@ -95,7 +97,7 @@ public class AuthenServiceImpl implements AuthenService {
         String accessToken = jwtUtils.generateToken(user.getEmail(), roles);
         String refreshToken = jwtUtils.generateRefreshToken(user.getEmail());
 
-        return new AuthResponse(accessToken, refreshToken);
+        return new AuthResponse(accessToken, refreshToken,expiresIn);
     }
 
     @Override
@@ -137,13 +139,30 @@ public class AuthenServiceImpl implements AuthenService {
             User user = userRepository.findByEmail(email)
                     .orElseThrow(() -> new UserNotFoundException());
 
-            List<String> roles = user.getUserRoles().stream()
-                    .map(ur -> ur.getRole().getRoleName())
-                    .toList();
+            Set<String> authorities = new HashSet<>();
+            for (UserRole userRole : user.getUserRoles()) {
+                Role role = userRole.getRole();
+                for (RolePermission rolePermission : role.getRolePermissions()) {
+                    Permission perm = rolePermission.getPermission();
+                    if (perm.getAction() != null && perm.getResource() != null) {
+                        authorities.add(perm.getAction() + ":" + perm.getResource());
+                    }
+                }
+            }
 
-            String newAccessToken = jwtUtils.generateToken(email, roles);
+            if (user.getUserPermissions() != null) {
+                for (UserPermission userPermission : user.getUserPermissions()) {
+                    Permission perm = userPermission.getPermission();
+                    if (perm.getAction() != null && perm.getResource() != null) {
+                        authorities.add(perm.getAction() + ":" + perm.getResource());
+                    }
+                }
+            }
 
-            return new AuthResponse(newAccessToken, oldRefreshToken);
+            List<String> authorityList = new ArrayList<>(authorities);
+
+            String newAccessToken = jwtUtils.generateToken(user.getEmail(), authorityList);
+            return new AuthResponse(newAccessToken, oldRefreshToken,expiresIn);
 
         } catch (ExpiredJwtException e) {
             throw new RuntimeException("Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.");
@@ -186,7 +205,7 @@ public class AuthenServiceImpl implements AuthenService {
         String accessToken = jwtUtils.generateToken(user.getEmail(), authorityList);
         String refreshToken = jwtUtils.generateRefreshToken(user.getEmail());
 
-        return new AuthResponse(accessToken, refreshToken);
+        return new AuthResponse(accessToken, refreshToken,expiresIn);
     }
 
     public UserRes toDTO(User u){
