@@ -48,4 +48,9 @@ public class AuthController {
         AuthResponse response = authenService.login(req);
         return ResponseEntity.ok(response);
     }
+    @PostMapping("/social-login")
+    public ResponseEntity<AuthResponse> socialLogin(@RequestBody Map<String, String> data) throws Exception {
+        AuthResponse response = authenService.socialLogin(data);
+        return ResponseEntity.ok(response);
+    }
 }

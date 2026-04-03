@@ -1,5 +1,9 @@
 package org.example.clothing_be.service.serviceImpl;
 
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.gson.GsonFactory;
 import io.jsonwebtoken.ExpiredJwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +18,7 @@ import org.example.clothing_be.enums.Status;
 
 import org.example.clothing_be.exception.EmailAlreadyExistsException;
 import org.example.clothing_be.exception.InvalidEmailException;
+import org.example.clothing_be.exception.ResourceNotFoundException;
 import org.example.clothing_be.exception.UserNotFoundException;
 import org.example.clothing_be.repository.RoleRepository;
 import org.example.clothing_be.repository.UserRepository;
@@ -28,10 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -49,6 +51,9 @@ public class AuthenServiceImpl implements AuthenService {
     private String fromEmail;
     @Value("${jwt.expiration}")
     private int expiresIn;
+
+    @Value("${google.client.id}") // Lưu clientId của bạn trong application.properties
+    private String googleClientId;
 
     @Override
     public String generateOtp() {
@@ -206,6 +211,73 @@ public class AuthenServiceImpl implements AuthenService {
         String refreshToken = jwtUtils.generateRefreshToken(user.getEmail());
 
         return new AuthResponse(accessToken, refreshToken,expiresIn);
+    }
+
+    @Override
+    public AuthResponse socialLogin(Map<String, String> request) throws Exception{
+        String idTokenString = request.get("idToken");
+
+        GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), new GsonFactory())
+                .setAudience(Collections.singletonList(googleClientId))
+                .build();
+
+        GoogleIdToken idToken = verifier.verify(idTokenString);
+
+        if (idToken != null) {
+            GoogleIdToken.Payload payload = idToken.getPayload();
+            String email = payload.getEmail();
+
+            User user = userRepository.findByEmail(email)
+                    .orElseGet(() -> {
+                        User newUser = new User();
+                        newUser.setEmail(email);
+                        newUser.setPassword(null);
+                        newUser.setCreated_at(LocalDate.now());
+                        newUser.setStatus(Status.ACTIVE);
+                        User saveUser = userRepository.save(newUser);
+
+                        UserRole userRole = new UserRole();
+                        Role role = roleRepository.findByRoleName("USER")
+                                .orElseThrow(()-> new ResourceNotFoundException("Khong tim thay role USER"));
+                        userRole.setRole(role);
+                        userRole.setUser(saveUser);
+                        List<UserRole> userRoleList = new ArrayList<>();
+                        userRoleList.add(userRole);
+
+                        saveUser.setUserRoles(userRoleList);
+
+                        return userRepository.save(saveUser);
+                    });
+
+
+            Set<String> authorities = new HashSet<>();
+            for (UserRole userRole : user.getUserRoles()) {
+                Role role = userRole.getRole();
+                for (RolePermission rolePermission : role.getRolePermissions()) {
+                    Permission perm = rolePermission.getPermission();
+                    if (perm.getAction() != null && perm.getResource() != null) {
+                        authorities.add(perm.getAction() + ":" + perm.getResource());
+                    }
+                }
+            }
+
+            if (user.getUserPermissions() != null) {
+                for (UserPermission userPermission : user.getUserPermissions()) {
+                    Permission perm = userPermission.getPermission();
+                    if (perm.getAction() != null && perm.getResource() != null) {
+                        authorities.add(perm.getAction() + ":" + perm.getResource());
+                    }
+                }
+            }
+
+            List<String> authorityList = new ArrayList<>(authorities);
+            String accessToken = jwtUtils.generateToken(user.getEmail(), authorityList);
+            String refreshToken = jwtUtils.generateRefreshToken(user.getEmail());
+            return new AuthResponse(accessToken, refreshToken, expiresIn);
+
+        } else {
+            throw new RuntimeException("Invalid Google Token");
+        }
     }
 
     public UserRes toDTO(User u){
