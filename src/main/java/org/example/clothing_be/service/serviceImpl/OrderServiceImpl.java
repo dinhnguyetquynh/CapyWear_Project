@@ -35,7 +35,8 @@ public class OrderServiceImpl implements OrderService {
 
     @Transactional
     public OrderResponse createOrder(OrderRequest request) {
-        User user = userRepository.findById(request.getUserId())
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         Orders order = new Orders();
@@ -132,7 +133,7 @@ public class OrderServiceImpl implements OrderService {
         response.setOrderId(order.getId());
         response.setOrderDate(LocalDateTime.now()); // Hoặc dùng order.getOrderDate()
         response.setTotalOrder(order.getTotalOrder());
-        response.setStatus(order.getStatus());
+        response.setStatus(order.getStatus().name());
 
         List<OrderDetailDTO> details = order.getOrderDetails().stream().map(d -> {
             OrderDetailDTO dto = new OrderDetailDTO();

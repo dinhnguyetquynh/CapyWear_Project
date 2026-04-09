@@ -8,7 +8,6 @@ import java.util.List;
 @Getter
 @Setter
 public class OrderRequest {
-    private Long userId;
     private List<ItemRequest> items;
 
     @Getter @Setter
