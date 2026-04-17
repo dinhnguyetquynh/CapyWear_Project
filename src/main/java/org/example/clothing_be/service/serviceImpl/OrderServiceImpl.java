@@ -49,7 +49,8 @@ public class OrderServiceImpl implements OrderService {
         for (OrderRequest.ItemRequest itemReq : request.getItems()) {
             Item item = itemRepository.findById(itemReq.getItemId())
                     .orElseThrow(() -> new RuntimeException("Item not found: " + itemReq.getItemId()));
-
+            item.setInventoryQty(item.getInventoryQty()-itemReq.getQuantity());
+            itemRepository.save(item);
             OrderDetail detail = new OrderDetail();
             detail.setItem(item);
             detail.setQuantity(itemReq.getQuantity());
@@ -111,10 +112,11 @@ public class OrderServiceImpl implements OrderService {
         response.setUserEmail(order.getUser().getEmail());
         response.setOrderDate(LocalDateTime.now()); // Hoặc dùng order.getOrderDate()
         response.setTotalOrder(order.getTotalOrder());
-        response.setStatus(order.getStatus());
+        response.setStatus(order.getStatus().name());
 
         List<OrderDetailDTO> details = order.getOrderDetails().stream().map(d -> {
             OrderDetailDTO dto = new OrderDetailDTO();
+            dto.setImgUrl(d.getItem().getUrlImg());
             dto.setItemName(d.getItem().getName());
             dto.setQuantity(d.getQuantity());
             dto.setPrice(d.getPurchasedPrice());
@@ -137,6 +139,8 @@ public class OrderServiceImpl implements OrderService {
 
         List<OrderDetailDTO> details = order.getOrderDetails().stream().map(d -> {
             OrderDetailDTO dto = new OrderDetailDTO();
+            dto.setId(d.getId());
+            dto.setImgUrl(d.getItem().getUrlImg());
             dto.setItemName(d.getItem().getName());
             dto.setQuantity(d.getQuantity());
             dto.setPrice(d.getPurchasedPrice());

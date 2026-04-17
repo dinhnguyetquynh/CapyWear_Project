@@ -6,6 +6,7 @@ import org.example.clothing_be.dto.admin.req.ItemReq;
 import org.example.clothing_be.dto.admin.req.ItemUpdateReq;
 import org.example.clothing_be.dto.general.res.ApiRes;
 import org.example.clothing_be.dto.general.res.ItemRes;
+import org.example.clothing_be.dto.general.res.ItemSearchRes;
 import org.example.clothing_be.dto.general.res.PageResponse;
 import org.example.clothing_be.entity.Item;
 import org.example.clothing_be.service.ItemService;
@@ -71,26 +72,26 @@ public class ItemController {
         return ResponseEntity.ok(response);
     }
     @GetMapping("/search/suggest")
-    public ResponseEntity <ApiRes<List<String>>>  getSuggestions(@RequestParam String q) {
+    public ResponseEntity <ApiRes<List<ItemSearchRes>>>  getSuggestions(@RequestParam String q) {
         if (q.length() < 2) {
-            ApiRes<List<String>> listApiRes = ApiRes.<List<String>>builder()
+            return ResponseEntity.ok(ApiRes.<List<ItemSearchRes>>builder()
                     .code(200)
-                    .message("Từ khoá có độ dài nhỏ hơn 2 kí tự.")
                     .result(Collections.emptyList())
-                    .build();
-            return ResponseEntity.ok(listApiRes);
+                    .build());
         }
+
         List<ItemRes> items = itemService.findTop10Item(q);
-        List<String> suggestions = items.stream()
-                .map(ItemRes::getName)
+
+        // Chuyển đổi từ ItemRes sang ItemSearchRes (chỉ lấy id và name)
+        List<ItemSearchRes> suggestions = items.stream()
+                .map(item -> new ItemSearchRes(item.getId(), item.getName()))
                 .collect(Collectors.toList());
 
-        ApiRes<List<String>> itemsRes = ApiRes.<List<String>>builder()
+        return ResponseEntity.ok(ApiRes.<List<ItemSearchRes>>builder()
                 .code(200)
-                .message("Lấy danh sách các sản phẩm theo từ khoá thành công")
+                .message("Thành công")
                 .result(suggestions)
-                .build();
-        return ResponseEntity.ok(itemsRes);
+                .build());
     }
 
     @GetMapping("/out-of-stock")

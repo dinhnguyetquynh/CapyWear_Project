@@ -115,7 +115,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<ItemRes> findTop10Item(String name) {
-        List<Item> itemList = itemRepository.findTop10ByNameStartingWithIgnoreCase(name);
+        List<Item> itemList = itemRepository.findTop10ByNameContainingIgnoreCase(name);
         List<ItemRes> itemResList = new ArrayList<>();
         for(Item item: itemList){
             ItemRes res = toDTO(item);

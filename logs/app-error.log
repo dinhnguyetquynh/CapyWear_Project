@@ -1,6 +1,6 @@
-2026-04-09 10:01:43 ERROR LoggingAspect:37 - ERROR in AuthenServiceImpl.login() with args=[LoginReq(email=dquynhd202@gmail.com, password=1111111)] | message=Email hoặc password không chính xác!
+2026-04-16 11:05:37 ERROR LoggingAspect:37 - ERROR in AuthenServiceImpl.login() with args=[LoginReq(email=dquynhd202@gmail.com, password=1111111)] | message=Email hoặc password không chính xác!
 org.example.clothing_be.exception.InvalidEmailException: Email hoặc password không chính xác!
-	at org.example.clothing_be.service.serviceImpl.AuthenServiceImpl.login(AuthenServiceImpl.java:185) ~[main/:?]
+	at org.example.clothing_be.service.serviceImpl.AuthenServiceImpl.login(AuthenServiceImpl.java:211) ~[main/:?]
 	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103) ~[?:?]
 	at java.base/java.lang.reflect.Method.invoke(Method.java:580) ~[?:?]
 	at org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:360) ~[spring-aop-6.2.16.jar:6.2.16]
@@ -74,6 +74,9 @@ org.example.clothing_be.exception.InvalidEmailException: Email hoặc password k
 	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.5.8.jar:6.5.8]
 	at org.springframework.security.web.authentication.logout.LogoutFilter.doFilter(LogoutFilter.java:107) ~[spring-security-web-6.5.8.jar:6.5.8]
 	at org.springframework.security.web.authentication.logout.LogoutFilter.doFilter(LogoutFilter.java:93) ~[spring-security-web-6.5.8.jar:6.5.8]
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.5.8.jar:6.5.8]
+	at org.springframework.web.filter.CorsFilter.doFilterInternal(CorsFilter.java:91) ~[spring-web-6.2.16.jar:6.2.16]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.2.16.jar:6.2.16]
 	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.5.8.jar:6.5.8]
 	at org.springframework.security.web.header.HeaderWriterFilter.doHeadersAfter(HeaderWriterFilter.java:90) ~[spring-security-web-6.5.8.jar:6.5.8]
 	at org.springframework.security.web.header.HeaderWriterFilter.doFilterInternal(HeaderWriterFilter.java:75) ~[spring-security-web-6.5.8.jar:6.5.8]

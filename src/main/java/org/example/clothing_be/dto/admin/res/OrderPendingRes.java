@@ -19,6 +19,6 @@ public class OrderPendingRes {
     private String userEmail;
     private LocalDateTime orderDate;
     private double totalOrder;
-    private OrderStatus status;
+    private String status;
     private List<OrderDetailDTO> details;
 }

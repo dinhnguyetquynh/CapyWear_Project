@@ -99,7 +99,29 @@ public class AuthenServiceImpl implements AuthenService {
         List<String> roles = user.getUserRoles().stream()
                 .map(userRole -> userRole.getRole().getRoleName())
                 .toList();
-        String accessToken = jwtUtils.generateToken(user.getEmail(), roles);
+        Set<String> authorities = new HashSet<>();
+        for (UserRole userRole : user.getUserRoles()) {
+            Role role = userRole.getRole();
+            for (RolePermission rolePermission : role.getRolePermissions()) {
+                Permission perm = rolePermission.getPermission();
+                if (perm.getAction() != null && perm.getResource() != null) {
+                    authorities.add(perm.getAction() + ":" + perm.getResource());
+                }
+            }
+        }
+
+        if (user.getUserPermissions() != null) {
+            for (UserPermission userPermission : user.getUserPermissions()) {
+                Permission perm = userPermission.getPermission();
+                if (perm.getAction() != null && perm.getResource() != null) {
+                    authorities.add(perm.getAction() + ":" + perm.getResource());
+                }
+            }
+        }
+
+        List<String> authorityList = new ArrayList<>(authorities);
+
+        String accessToken = jwtUtils.generateToken(user.getEmail(),authorityList,roles);
         String refreshToken = jwtUtils.generateRefreshToken(user.getEmail());
 
         return new AuthResponse(accessToken, refreshToken,expiresIn);
@@ -165,8 +187,12 @@ public class AuthenServiceImpl implements AuthenService {
             }
 
             List<String> authorityList = new ArrayList<>(authorities);
+            List<String> roles = new ArrayList<>();
+            for (UserRole userRole : user.getUserRoles()) {
+                roles.add(userRole.getRole().getRoleName());
+            }
 
-            String newAccessToken = jwtUtils.generateToken(user.getEmail(), authorityList);
+            String newAccessToken = jwtUtils.generateToken(user.getEmail(), authorityList,roles);
             return new AuthResponse(newAccessToken, oldRefreshToken,expiresIn);
 
         } catch (ExpiredJwtException e) {
@@ -206,8 +232,12 @@ public class AuthenServiceImpl implements AuthenService {
         }
 
         List<String> authorityList = new ArrayList<>(authorities);
+        List<String> roles = new ArrayList<>();
+        for (UserRole userRole : user.getUserRoles()) {
+            roles.add(userRole.getRole().getRoleName());
+        }
 
-        String accessToken = jwtUtils.generateToken(user.getEmail(), authorityList);
+        String accessToken = jwtUtils.generateToken(user.getEmail(), authorityList,roles);
         String refreshToken = jwtUtils.generateRefreshToken(user.getEmail());
 
         return new AuthResponse(accessToken, refreshToken,expiresIn);
@@ -271,7 +301,11 @@ public class AuthenServiceImpl implements AuthenService {
             }
 
             List<String> authorityList = new ArrayList<>(authorities);
-            String accessToken = jwtUtils.generateToken(user.getEmail(), authorityList);
+            List<String> roles = new ArrayList<>();
+            for (UserRole userRole : user.getUserRoles()) {
+                roles.add(userRole.getRole().getRoleName());
+            }
+            String accessToken = jwtUtils.generateToken(user.getEmail(), authorityList,roles);
             String refreshToken = jwtUtils.generateRefreshToken(user.getEmail());
             return new AuthResponse(accessToken, refreshToken, expiresIn);
 
@@ -285,7 +319,7 @@ public class AuthenServiceImpl implements AuthenService {
         userRes.setId(u.getId());
         userRes.setEmail(u.getEmail());
         userRes.setCreated_at(u.getCreated_at());
-        userRes.setStatus(u.getStatus());
+        userRes.setStatus(u.getStatus().name());
         userRes.setImgUrl(u.getImgUrl());
         return userRes;
     }
