@@ -1,10 +1,7 @@
 package org.example.clothing_be.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.example.clothing_be.enums.OrderStatus;
 
 import java.time.LocalDate;
@@ -17,6 +14,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Orders {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,5 +27,6 @@ public class Orders {
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
     private List<OrderDetail> orderDetails = new ArrayList<>();
     @Enumerated(EnumType.STRING)
+    @Builder.Default
     private OrderStatus status = OrderStatus.PENDING;
 }

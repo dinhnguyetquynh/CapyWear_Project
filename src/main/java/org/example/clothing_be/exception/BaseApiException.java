@@ -14,9 +14,9 @@ public abstract class BaseApiException extends RuntimeException {
     protected BaseApiException(String errorCode, String message, HttpStatus status, List<ApiError.DetailError> details) {
         super(message);
         // Tự động lấy URI của request hiện tại
-        String currentPath = ServletUriComponentsBuilder.fromCurrentRequestUri()
-                .build()
-                .getPath();
+//        String currentPath = ServletUriComponentsBuilder.fromCurrentRequestUri()
+//                .build()
+//                .getPath();
         this.status = status;
         // Tự tạo ApiError ngay khi Exception được khởi tạo
         this.apiError = ApiError.builder()
@@ -24,7 +24,7 @@ public abstract class BaseApiException extends RuntimeException {
                 .status(status.value())
                 .errorCode(errorCode)
                 .message(message)
-                .path(currentPath)
+                .path(null)
                 .details(details)
                 .build();
     }

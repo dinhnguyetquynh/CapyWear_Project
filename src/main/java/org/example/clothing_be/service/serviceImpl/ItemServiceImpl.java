@@ -28,23 +28,6 @@ public class ItemServiceImpl implements ItemService {
     private final CartDetailRepository cartDetailRepository;
     private final OrderDetailRepository orderDetailRepository;
 
-    //Filter item deleted
-//    @Override
-//    public Page<ItemRes> getAllItems(int page, int size) {
-//        Pageable pageable = PageRequest.of(page,size, Sort.by("id").descending());
-//        Page<Item> itemPage = itemRepository.findAllByDeletedFalse(pageable);
-//
-//        return itemPage.map(item -> {
-//            ItemRes res = new ItemRes();
-//            res.setId(item.getId());
-//            res.setName(item.getName());
-//            res.setPrice(item.getPrice());
-//            res.setInventoryQty(item.getInventoryQty());
-//            res.setUrlImg(item.getUrlImg());
-//            return res;
-//        });
-//    }
-
     @Override
     public PageResponse<ItemRes> getAllItems(int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
