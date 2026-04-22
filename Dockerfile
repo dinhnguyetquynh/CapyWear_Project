@@ -2,28 +2,21 @@
 FROM gradle:8.5-jdk17 AS build
 WORKDIR /app
 
-# Copy các file cấu hình gradle trước để tận dụng cache
-COPY gradlew .
-COPY gradle gradle
-COPY build.gradle .
-COPY settings.gradle .
+# Copy toàn bộ mã nguồn vào container
+COPY . .
 
-# Cấp quyền thực thi cho gradlew và tải dependencies
-RUN chmod +x gradlew
-RUN ./gradlew dependencies --no-daemon
+# Dùng thẳng lệnh gradle (có sẵn trong image) thay vì ./gradlew để tránh lỗi CRLF của Windows
+# Dấu && rm -f ... giúp xóa file jar rác (nếu Spring Boot sinh ra) để tránh lỗi copy
+RUN gradle build -x test --no-daemon && rm -f build/libs/*-plain.jar
 
-# Copy toàn bộ source code và build file jar
-COPY src src
-RUN ./gradlew build -x test --no-daemon
-
-# Stage 2: Run ứng dụng với Eclipse Temurin JRE (Thay thế cho openjdk)
+# Stage 2: Run ứng dụng với Eclipse Temurin JRE (Nhẹ & Ổn định)
 FROM eclipse-temurin:17-jre-jammy
 WORKDIR /app
 
-# Copy file jar đã build từ stage 1 vào stage này
-COPY --from=build /app/build/libs/*-SNAPSHOT.jar app.jar
+# Copy file jar chính thức đã build từ stage 1 sang stage này
+COPY --from=build /app/build/libs/*.jar app.jar
 
-# Render sẽ cấp một cổng ngẫu nhiên thông qua biến môi trường $PORT
+# Cấp cổng cho Render
 EXPOSE 8080
 
 # Chạy ứng dụng
