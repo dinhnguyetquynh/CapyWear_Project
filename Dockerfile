@@ -1,18 +1,18 @@
-# Stage 1: Build ứng dụng bằng Gradle
-FROM gradle:8.5-jdk17 AS build
+# Stage 1: Build ứng dụng bằng Gradle (Sử dụng JDK 21)
+FROM gradle:8.5-jdk21 AS build
 WORKDIR /app
 
-# Giới hạn RAM cho Gradle để không bị Render tự động ngắt (chống lỗi OOM)
+# Giới hạn RAM cho Gradle để tránh quá tải trên Render
 ENV GRADLE_OPTS="-Dorg.gradle.jvmargs=-Xmx256m"
 
-# Copy toàn bộ mã nguồn (đã được lọc bởi .dockerignore)
+# Copy toàn bộ mã nguồn (nhớ giữ file .dockerignore để bỏ qua thư mục rác)
 COPY . .
 
 # Build ứng dụng
 RUN gradle build -x test --no-daemon && rm -f build/libs/*-plain.jar
 
-# Stage 2: Run ứng dụng với Eclipse Temurin JRE
-FROM eclipse-temurin:17-jre-jammy
+# Stage 2: Run ứng dụng với Eclipse Temurin JRE 21 (Nhẹ & Ổn định)
+FROM eclipse-temurin:21-jre-jammy
 WORKDIR /app
 
 # Copy file jar chính thức đã build từ stage 1 sang
