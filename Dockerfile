@@ -1,27 +1,32 @@
-# --- Stage 1: Build stage ---
-FROM gradle:8.5-jdk21 AS build
+# Stage 1: Build ứng dụng bằng Gradle
+FROM gradle:8.5-jdk17 AS build
 WORKDIR /app
 
 # Copy các file cấu hình gradle trước để tận dụng cache
-COPY build.gradle settings.gradle /app/
-COPY gradle /app/gradle
+COPY gradlew .
+COPY gradle gradle
+COPY build.gradle .
+COPY settings.gradle .
 
-# Copy toàn bộ source code
-COPY . /app
+# Cấp quyền thực thi cho gradlew và tải dependencies
+RUN chmod +x gradlew
+RUN ./gradlew dependencies --no-daemon
 
-# Build project và bỏ qua chạy test để nhanh hơn
+# Copy toàn bộ source code và build file jar (bỏ qua chạy test để nhanh hơn)
+COPY src src
 RUN ./gradlew build -x test --no-daemon
 
-# --- Stage 2: Run stage ---
-FROM eclipse-temurin:21-jre-jammy
+# Stage 2: Run ứng dụng với JRE nhẹ hơn
+FROM openjdk:17-jdk-slim
 WORKDIR /app
 
-# Copy file jar đã build từ Stage 1 sang Stage 2
-# Lưu ý: Tên file jar thường là {tên_project}-{phiên_ản}.jar
+# Copy file jar đã build từ stage 1 vào stage này
+# Lưu ý: Tên file build có thể là 'clothing_be-0.0.1-SNAPSHOT.jar', ta đổi tên thành 'app.jar' cho dễ dùng
 COPY --from=build /app/build/libs/*-SNAPSHOT.jar app.jar
 
-# Mở cổng 8080 (cổng mặc định của Spring Boot)
+# Render sẽ cấp một cổng ngẫu nhiên thông qua biến môi trường $PORT
+# Ta cấu hình Spring Boot chạy trên cổng đó
 EXPOSE 8080
 
 # Chạy ứng dụng
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-Dserver.port=${PORT:8080}", "-jar", "app.jar"]
