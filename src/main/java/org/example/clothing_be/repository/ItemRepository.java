@@ -19,4 +19,13 @@ public interface ItemRepository extends JpaRepository<Item,Integer> {
     List<Item> findLowStockItems(@Param("qty") int qty);
     List<Item> findTop10ByNameContainingIgnoreCase(String name);
 
+    @Query("SELECT i FROM Item i WHERE " +
+            "(:minPrice IS NULL OR i.price >= :minPrice) AND " +
+            "(:maxPrice IS NULL OR i.price <= :maxPrice)")
+    Page<Item> findByPriceRange(
+            @Param("minPrice") Double minPrice,
+            @Param("maxPrice") Double maxPrice,
+            Pageable pageable
+    );
+
 }

@@ -16,5 +16,5 @@ public interface ItemService {
     List<ItemRes> findTop10Item(String name);
     List<ItemRes> findLowStockItems();
     ItemRes getItemDetail(int itemId);
-
+    PageResponse<ItemRes> findByPriceRange(int page, int size, Double minPrice,Double maxPrice);
 }

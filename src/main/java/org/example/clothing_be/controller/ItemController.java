@@ -113,4 +113,15 @@ public class ItemController {
                 .body(ApiRes.success(200,itemRes,"Lấy chi tiết sản phẩm thành công"));
     }
 
+    @GetMapping("/range-price")
+    public ResponseEntity<PageResponse<ItemRes>> getAllItemsByRangePrice(
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "10") int size,
+            @RequestParam(name = "minPrice", required = false) Double minPrice,
+            @RequestParam(name = "maxPrice", required = false) Double maxPrice) {
+
+        PageResponse<ItemRes> result = itemService.findByPriceRange(page, size, minPrice, maxPrice);
+        return ResponseEntity.ok(result);
+    }
+
 }

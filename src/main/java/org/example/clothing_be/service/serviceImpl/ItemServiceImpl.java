@@ -24,9 +24,38 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class ItemServiceImpl implements ItemService {
+
     private final ItemRepository itemRepository;
     private final CartDetailRepository cartDetailRepository;
     private final OrderDetailRepository orderDetailRepository;
+
+    @Override
+    public PageResponse<ItemRes> findByPriceRange(int page, int size, Double minPrice, Double maxPrice) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
+        Page<Item> itemPage = itemRepository.findByPriceRange(minPrice,maxPrice,pageable);
+
+        // 1. Chuyển đổi từ Item sang ItemRes (vẫn dùng map của Page)
+        List<ItemRes> content = itemPage.map(item -> {
+            ItemRes res = new ItemRes();
+            res.setId(item.getId());
+            res.setName(item.getName());
+            res.setPrice(item.getPrice());
+            res.setInventoryQty(item.getInventoryQty());
+            res.setUrlImg(item.getUrlImg());
+            return res;
+        }).getContent(); // Lấy list ra từ Page
+
+        // 2. Build đối tượng PageResponse đã tạo ở Bước 1
+        return PageResponse.<ItemRes>builder()
+                .content(content)
+                .pageNo(itemPage.getNumber())
+                .pageSize(itemPage.getSize())
+                .totalElements(itemPage.getTotalElements())
+                .totalPages(itemPage.getTotalPages())
+                .last(itemPage.isLast())
+                .build();
+    }
+
 
     @Override
     public PageResponse<ItemRes> getAllItems(int page, int size) {
