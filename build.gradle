@@ -1,8 +1,16 @@
   plugins {
     id 'java'
+    id 'war'
     id 'org.springframework.boot' version '3.5.11'
     id 'io.spring.dependency-management' version '1.1.7'
 }
+  bootJar {
+      enabled = false
+  }
+
+  bootWar {
+      enabled = true
+  }
 
 group = 'org.example'
 version = '0.0.1-SNAPSHOT'
@@ -56,6 +64,8 @@ dependencies {
     testImplementation 'org.mockito:mockito-core:5.23.0'
     // Source: https://mvnrepository.com/artifact/org.springframework.security/spring-security-test
     testImplementation 'org.springframework.security:spring-security-test:7.1.0-M3'
+
+    providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
 }
 
 tasks.named('test') {
