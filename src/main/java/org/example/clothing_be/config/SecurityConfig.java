@@ -45,6 +45,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/public/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/item").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/item/{itemId}").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/item/search/suggest/**").permitAll()
                         .requestMatchers("/h2-console/**").permitAll()
                         .anyRequest().authenticated()
                 )
