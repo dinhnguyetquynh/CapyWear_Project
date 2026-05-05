@@ -86,4 +86,10 @@ public class DynamicPermissionFilter extends OncePerRequestFilter {
         mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         response.getWriter().write(mapper.writeValueAsString(error));
     }
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getRequestURI();
+        return path.startsWith("/api/public/") || path.startsWith("/api/item") || path.startsWith("/h2-console");
+    }
 }

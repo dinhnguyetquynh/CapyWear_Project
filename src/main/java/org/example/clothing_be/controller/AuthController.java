@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/public/")
+@RequestMapping("/api/public")
 @RequiredArgsConstructor
 public class AuthController {
 
@@ -53,4 +53,6 @@ public class AuthController {
         AuthResponse response = authenService.socialLogin(data);
         return ResponseEntity.ok(response);
     }
+
+
 }

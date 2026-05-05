@@ -34,13 +34,6 @@ public class JwtFilter extends OncePerRequestFilter {
                 if (jwtUtils.validateToken(token) && SecurityContextHolder.getContext().getAuthentication() == null) {
 
                     String username = jwtUtils.extractUsername(token);
-//                    List<String> roles = jwtUtils.extractRoles(token);
-
-//                    List<SimpleGrantedAuthority> authorities = roles.stream()
-//                            .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
-//                            .toList();
-
-                    // Đổi tên hàm gọi
                     List<String> authoritiesList = jwtUtils.extractAuthorities(token);
 
                     // QUAN TRỌNG: Không cộng chuỗi "ROLE_" nữa!
@@ -60,5 +53,11 @@ public class JwtFilter extends OncePerRequestFilter {
             log.error("JWT processing failed: {}", e.getMessage(), e);
         }
         filterChain.doFilter(request, response);
+    }
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getRequestURI();
+        // Bỏ qua không kiểm tra token với các API bắt đầu bằng /api/public/
+        return path.startsWith("/api/public/") || path.startsWith("/api/item") || path.startsWith("/h2-console");
     }
 }
