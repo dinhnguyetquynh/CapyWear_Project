@@ -53,6 +53,10 @@ public class AuthController {
         AuthResponse response = authenService.socialLogin(data);
         return ResponseEntity.ok(response);
     }
+    @GetMapping("/check-health")
+    public ResponseEntity<String> checkHealth(){
+        return ResponseEntity.ok("OK");
+    }
 
 
 }
