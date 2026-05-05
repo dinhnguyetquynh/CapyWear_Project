@@ -3,6 +3,8 @@ package org.example.clothing_be.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.example.clothing_be.enums.Role;
 import org.example.clothing_be.exception.ApiError;
@@ -15,6 +17,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -34,6 +37,12 @@ public class SecurityConfig {
 
     @Autowired
     private JwtFilter jwtFilter;
+
+    @Bean
+    public WebSecurityCustomizer webSecurityCustomizer() {
+        return (web) -> web.ignoring()
+                .requestMatchers("/api/public/**", "/error");
+    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, DynamicPermissionFilter dynamicPermissionFilter) throws Exception {
@@ -83,10 +92,12 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    private void writeErrorResponse(HttpServletResponse response, HttpStatus status, String errorCode, String message, String path) throws IOException {
+    private void writeErrorResponse(HttpServletResponse response, HttpStatus status, String errorCode, String message,String path) throws IOException {
         response.setStatus(status.value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding("UTF-8");
+
+
 
         ApiError error = ApiError.builder()
                 .timestamp(LocalDateTime.now())
