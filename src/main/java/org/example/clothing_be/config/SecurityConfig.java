@@ -75,6 +75,14 @@ public class SecurityConfig {
         http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
         http.addFilterAfter(dynamicPermissionFilter, JwtFilter.class);
 
+        http.addFilterBefore((request, response, chain) -> {
+            jakarta.servlet.http.HttpServletRequest req = (jakarta.servlet.http.HttpServletRequest) request;
+            System.out.println(">>> URI: " + req.getRequestURI());
+            System.out.println(">>> Servlet Path: " + req.getServletPath());
+            chain.doFilter(request, response);
+        }, UsernamePasswordAuthenticationFilter.class);
+
+
         return http.build();
     }
 
