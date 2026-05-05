@@ -90,6 +90,6 @@ public class DynamicPermissionFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getRequestURI();
-        return path.startsWith("/api/public/") || path.startsWith("/api/item") || path.startsWith("/h2-console");
+        return path.startsWith("/api/public/") || path.startsWith("/api/item") || path.startsWith("/h2-console")||path.startsWith("/error");
     }
 }
