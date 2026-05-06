@@ -152,8 +152,7 @@ public class AuthenServiceImpl implements AuthenService {
 
         try {
             System.out.println("CALL SEND OTP");
-            String newOTP = generateOtp();
-            emailService.sendEmail(req.getEmail(),newOTP,req.getEmail());
+            emailService.sendEmail(req.getEmail(),otp,req.getEmail());
         } catch (Exception e) {
             throw new OtpSendingFailedException("Không thể gửi OTP đến email: " + req.getEmail());
         }
