@@ -39,12 +39,6 @@ public class SecurityConfig {
     private JwtFilter jwtFilter;
 
     @Bean
-    public WebSecurityCustomizer webSecurityCustomizer() {
-        return (web) -> web.ignoring()
-                .requestMatchers("/api/public/**", "/error");
-    }
-
-    @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, DynamicPermissionFilter dynamicPermissionFilter) throws Exception {
         http
                 .cors(Customizer.withDefaults())
@@ -55,7 +49,6 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/item").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/item/{itemId}").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/item/search/suggest/**").permitAll()
-                        .requestMatchers("/error").permitAll()
                         .requestMatchers("/h2-console/**").permitAll()
                         .anyRequest().authenticated()
                 )
@@ -65,7 +58,7 @@ public class SecurityConfig {
                                     response,
                                     HttpStatus.UNAUTHORIZED,
                                     "UNAUTHORIZED_ACCESS",
-                                    "Bạn cần đăng nhập để truy cập tài nguyên này",
+                                    "Bạn cần đăng nhập để truy cập tài nguyên này hehe",
                                     request.getRequestURI()
                             );
                         })

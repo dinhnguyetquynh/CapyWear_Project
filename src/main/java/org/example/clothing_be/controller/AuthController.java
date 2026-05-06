@@ -57,6 +57,4 @@ public class AuthController {
     public ResponseEntity<String> checkHealth(){
         return ResponseEntity.ok("OK");
     }
-
-
 }
