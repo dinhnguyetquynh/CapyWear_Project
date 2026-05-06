@@ -37,6 +37,7 @@ import java.util.*;
 @Slf4j
 public class AuthenServiceImpl implements AuthenService {
     private final JavaMailSender mailSender;
+    private final EmailService emailService;
     private static final String CHARACTERS = "0123456789";
     private static final int OTP_LENGTH = 6;
     private static final SecureRandom secureRandom = new SecureRandom();
@@ -151,7 +152,8 @@ public class AuthenServiceImpl implements AuthenService {
 
         try {
             System.out.println("CALL SEND OTP");
-            sendOtpEmail(req.getEmail(), otp);
+            String newOTP = generateOtp();
+            emailService.sendEmail(req.getEmail(),newOTP,req.getEmail());
         } catch (Exception e) {
             throw new OtpSendingFailedException("Không thể gửi OTP đến email: " + req.getEmail());
         }
