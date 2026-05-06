@@ -16,10 +16,7 @@ import org.example.clothing_be.entity.*;
 import org.example.clothing_be.enums.Status;
 
 
-import org.example.clothing_be.exception.EmailAlreadyExistsException;
-import org.example.clothing_be.exception.InvalidEmailException;
-import org.example.clothing_be.exception.ResourceNotFoundException;
-import org.example.clothing_be.exception.UserNotFoundException;
+import org.example.clothing_be.exception.*;
 import org.example.clothing_be.repository.RoleRepository;
 import org.example.clothing_be.repository.UserRepository;
 import org.example.clothing_be.service.AuthenService;
@@ -134,7 +131,7 @@ public class AuthenServiceImpl implements AuthenService {
             throw new EmailAlreadyExistsException(req.getEmail());
         }
         String otp = generateOtp();
-        sendOtpEmail(req.getEmail(), otp);
+
 
         Role userRole = roleRepository.findByRoleName(org.example.clothing_be.enums.Role.USER.name())
                 .orElseThrow(() -> new RuntimeException("NOT FIND ROLE"));
@@ -152,6 +149,12 @@ public class AuthenServiceImpl implements AuthenService {
 
         User savedUser = userRepository.save(newUser);
 
+        try {
+            System.out.println("CALL SEND OTP");
+            sendOtpEmail(req.getEmail(), otp);
+        } catch (Exception e) {
+            throw new OtpSendingFailedException("Không thể gửi OTP đến email: " + req.getEmail());
+        }
 
         UserRes userRes = toDTO(savedUser);
         return userRes;
