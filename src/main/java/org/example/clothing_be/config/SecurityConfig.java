@@ -45,11 +45,6 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/public/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/item").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/item/{itemId}").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/item/search/suggest/**").permitAll()
-                        .requestMatchers("/h2-console/**").permitAll()
                         .anyRequest().permitAll()
                 )
                 .exceptionHandling(ex -> ex
