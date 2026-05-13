@@ -54,10 +54,10 @@ public class JwtFilter extends OncePerRequestFilter {
         }
         filterChain.doFilter(request, response);
     }
-    @Override
-    protected boolean shouldNotFilter(HttpServletRequest request) {
-        String path = request.getRequestURI();
-        // Bỏ qua không kiểm tra token với các API bắt đầu bằng /api/public/
-        return path.startsWith("/api/public/") || path.startsWith("/api/item") || path.startsWith("/h2-console")||path.startsWith("/error");
-    }
+//    @Override
+//    protected boolean shouldNotFilter(HttpServletRequest request) {
+//        String path = request.getRequestURI();
+//        // Bỏ qua không kiểm tra token với các API bắt đầu bằng /api/public/
+//        return path.startsWith("/api/public/") || path.startsWith("/api/item") || path.startsWith("/h2-console")||path.startsWith("/error");
+//    }
 }
