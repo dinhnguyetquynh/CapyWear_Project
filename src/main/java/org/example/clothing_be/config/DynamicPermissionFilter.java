@@ -31,7 +31,11 @@ public class DynamicPermissionFilter extends OncePerRequestFilter {
         String requestMethod = request.getMethod();
 
         if (requestUrl.startsWith("/api/public") ||
-                (requestMethod.equalsIgnoreCase("GET") && pathMatcher.match("/api/item", requestUrl))) {
+                (requestMethod.equalsIgnoreCase("GET") &&
+                        (pathMatcher.match("/api/item", requestUrl)
+                                || pathMatcher.match("/api/item/*", requestUrl)
+                                || pathMatcher.match("/api/item/search/suggest/**", requestUrl)))
+        ) {
             filterChain.doFilter(request, response);
             return;
         }
