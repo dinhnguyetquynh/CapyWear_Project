@@ -112,10 +112,11 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
 
         // 1. Cho phép nguồn cụ thể (Frontend của bạn)
-        configuration.setAllowedOrigins(Arrays.asList(
-                "http://localhost:3000",
-                "https://capy-wear-project-fe.vercel.app"
-        ));
+//        configuration.setAllowedOrigins(Arrays.asList(
+//                "http://localhost:3000",
+//                "https://capy-wear-project-fe.vercel.app"
+//        ));
+        configuration.addAllowedOrigin("*");
 
         // 2. Cho phép các phương thức HTTP
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
