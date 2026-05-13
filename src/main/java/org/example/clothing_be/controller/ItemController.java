@@ -33,6 +33,7 @@ public class ItemController {
         PageResponse<ItemRes> result = itemService.getAllItems(page, size);
         return ResponseEntity.ok(result);
     }
+
     @PostMapping
     public ResponseEntity<ApiRes<ItemRes>> createItem(@Valid @RequestBody ItemReq req){
         ItemRes itemRes = itemService.createItem(req);

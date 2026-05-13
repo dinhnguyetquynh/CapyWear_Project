@@ -49,6 +49,7 @@ public class DynamicPermissionFilter extends OncePerRequestFilter {
 
         for (GrantedAuthority authority : authentication.getAuthorities()) {
             String authString = authority.getAuthority();
+            log.info("AUTHSTRING: {}", authString);
             if (!authString.contains(":")) {
                 continue;
             }
@@ -58,6 +59,8 @@ public class DynamicPermissionFilter extends OncePerRequestFilter {
             String allowedResource = parts[1];   // VD: "/api/items/**"
 
             if (allowedMethod.equalsIgnoreCase(requestMethod) && pathMatcher.match(allowedResource, requestUrl)) {
+                log.info("ALLOWMETHOD: {} REQUEST METHOD: {}", allowedMethod, requestMethod);
+                log.info("AllowedResource: {} REQUEST URL: {}", allowedResource, requestUrl);
                 hasPermission = true;
                 break;
             }
@@ -90,10 +93,4 @@ public class DynamicPermissionFilter extends OncePerRequestFilter {
         mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         response.getWriter().write(mapper.writeValueAsString(error));
     }
-
-//    @Override
-//    protected boolean shouldNotFilter(HttpServletRequest request) {
-//        String path = request.getRequestURI();
-//        return path.startsWith("/api/public") || path.startsWith("/api/item") || path.startsWith("/h2-console")||path.startsWith("/error");
-//    }
 }
