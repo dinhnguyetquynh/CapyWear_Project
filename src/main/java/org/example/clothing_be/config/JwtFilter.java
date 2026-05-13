@@ -27,14 +27,25 @@ public class JwtFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String authHeader = request.getHeader("Authorization");
+
+        log.info("AUTH HEADER: {}", authHeader);
+
         try {
             if (authHeader != null && authHeader.startsWith("Bearer ")) {
                 String token = authHeader.substring(7);
+                log.info("TOKEN: {}", token);
 
-                if (jwtUtils.validateToken(token) && SecurityContextHolder.getContext().getAuthentication() == null) {
+                boolean isValid = jwtUtils.validateToken(token);
+
+                log.info("TOKEN VALID: {}", isValid);
+
+                if (isValid && SecurityContextHolder.getContext().getAuthentication() == null) {
 
                     String username = jwtUtils.extractUsername(token);
+
+                    log.info("USERNAME: {}", username);
                     List<String> authoritiesList = jwtUtils.extractAuthorities(token);
+                    log.info("AUTHORITIES: {}", authoritiesList);
 
                     // QUAN TRỌNG: Không cộng chuỗi "ROLE_" nữa!
                     List<SimpleGrantedAuthority> authorities = authoritiesList.stream()
@@ -46,18 +57,14 @@ public class JwtFilter extends OncePerRequestFilter {
                             new UsernamePasswordAuthenticationToken(username, null, authorities);
 
                     SecurityContextHolder.getContext().setAuthentication(authToken);
+                    log.info("AUTHENTICATION SUCCESS");
                 }
             }
         } catch (Exception e) {
+            log.error("JWT ERROR", e);
             SecurityContextHolder.clearContext();
             log.error("JWT processing failed: {}", e.getMessage(), e);
         }
         filterChain.doFilter(request, response);
     }
-//    @Override
-//    protected boolean shouldNotFilter(HttpServletRequest request) {
-//        String path = request.getRequestURI();
-//        // Bỏ qua không kiểm tra token với các API bắt đầu bằng /api/public/
-//        return path.startsWith("/api/public/") || path.startsWith("/api/item") || path.startsWith("/h2-console")||path.startsWith("/error");
-//    }
 }
