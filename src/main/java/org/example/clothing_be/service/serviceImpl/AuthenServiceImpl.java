@@ -19,6 +19,7 @@ import org.example.clothing_be.enums.Status;
 import org.example.clothing_be.exception.*;
 import org.example.clothing_be.repository.RoleRepository;
 import org.example.clothing_be.repository.UserRepository;
+import org.example.clothing_be.repository.UserRoleRepository;
 import org.example.clothing_be.service.AuthenService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
@@ -44,6 +45,7 @@ public class AuthenServiceImpl implements AuthenService {
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final UserRoleRepository userRoleRepository;
     private final JwtUtils jwtUtils;
     @Value("${spring.mail.username}")
     private String fromEmail;
@@ -94,6 +96,7 @@ public class AuthenServiceImpl implements AuthenService {
         user.setOptExpiredAt(null);
         user.setStatus(Status.ACTIVE);
         userRepository.save(user);
+
         List<String> roles = user.getUserRoles().stream()
                 .map(userRole -> userRole.getRole().getRoleName())
                 .toList();
@@ -275,6 +278,9 @@ public class AuthenServiceImpl implements AuthenService {
                                 .orElseThrow(()-> new ResourceNotFoundException("Khong tim thay role USER"));
                         userRole.setRole(role);
                         userRole.setUser(saveUser);
+                        //save
+                        userRoleRepository.save(userRole);
+
                         List<UserRole> userRoleList = new ArrayList<>();
                         userRoleList.add(userRole);
 
