@@ -1,8 +1,9 @@
 .gradle/
 build/
-!build/libs/*.war
+bin/
 out/
 target/
 *.log
 .idea/
 .vscode/
+.git

@@ -1,6 +1,5 @@
   plugins {
     id 'java'
-    id 'war'
     id 'org.springframework.boot' version '3.5.11'
     id 'io.spring.dependency-management' version '1.1.7'
 }
@@ -67,7 +66,7 @@ dependencies {
     // Source: https://mvnrepository.com/artifact/org.springframework.security/spring-security-test
     testImplementation 'org.springframework.security:spring-security-test:7.1.0-M3'
 
-    providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
+//    providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
 
     // Source: https://mvnrepository.com/artifact/com.sendgrid/sendgrid-java
     implementation 'com.sendgrid:sendgrid-java:5.0.0-rc.1'
