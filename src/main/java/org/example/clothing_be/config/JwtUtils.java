@@ -35,7 +35,7 @@ public class JwtUtils {
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
-    // Tạo Refresh Token (Mới: Thường không cần chứa Roles để bảo mật và nhẹ payload)
+
     public String generateRefreshToken(String username) {
         return Jwts.builder()
                 .setSubject(username)
@@ -77,7 +77,6 @@ public class JwtUtils {
             return true;
         } catch (ExpiredJwtException e) {
             log.error("Token đã hết hạn: {}", e.getMessage());
-//            throw e; // Ném ra để Service hoặc Global Handler xử lý
         } catch (SignatureException e) {
             log.error("Chữ ký Token không hợp lệ: {}", e.getMessage());
         } catch (Exception e) {

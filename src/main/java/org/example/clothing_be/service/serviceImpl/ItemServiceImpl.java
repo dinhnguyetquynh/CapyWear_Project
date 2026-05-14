@@ -34,7 +34,6 @@ public class ItemServiceImpl implements ItemService {
         Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
         Page<Item> itemPage = itemRepository.findByPriceRange(minPrice,maxPrice,pageable);
 
-        // 1. Chuyển đổi từ Item sang ItemRes (vẫn dùng map của Page)
         List<ItemRes> content = itemPage.map(item -> {
             ItemRes res = new ItemRes();
             res.setId(item.getId());
@@ -43,9 +42,8 @@ public class ItemServiceImpl implements ItemService {
             res.setInventoryQty(item.getInventoryQty());
             res.setUrlImg(item.getUrlImg());
             return res;
-        }).getContent(); // Lấy list ra từ Page
+        }).getContent();
 
-        // 2. Build đối tượng PageResponse đã tạo ở Bước 1
         return PageResponse.<ItemRes>builder()
                 .content(content)
                 .pageNo(itemPage.getNumber())
@@ -62,7 +60,6 @@ public class ItemServiceImpl implements ItemService {
         Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
         Page<Item> itemPage = itemRepository.findAllByDeletedFalse(pageable);
 
-        // 1. Chuyển đổi từ Item sang ItemRes (vẫn dùng map của Page)
         List<ItemRes> content = itemPage.map(item -> {
             ItemRes res = new ItemRes();
             res.setId(item.getId());
@@ -71,9 +68,8 @@ public class ItemServiceImpl implements ItemService {
             res.setInventoryQty(item.getInventoryQty());
             res.setUrlImg(item.getUrlImg());
             return res;
-        }).getContent(); // Lấy list ra từ Page
+        }).getContent();
 
-        // 2. Build đối tượng PageResponse đã tạo ở Bước 1
         return PageResponse.<ItemRes>builder()
                 .content(content)
                 .pageNo(itemPage.getNumber())

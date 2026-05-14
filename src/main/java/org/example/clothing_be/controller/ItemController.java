@@ -82,8 +82,6 @@ public class ItemController {
         }
 
         List<ItemRes> items = itemService.findTop10Item(q);
-
-        // Chuyển đổi từ ItemRes sang ItemSearchRes (chỉ lấy id và name)
         List<ItemSearchRes> suggestions = items.stream()
                 .map(item -> new ItemSearchRes(item.getId(), item.getName()))
                 .collect(Collectors.toList());

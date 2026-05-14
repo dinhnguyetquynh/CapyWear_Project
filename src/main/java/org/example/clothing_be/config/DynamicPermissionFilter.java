@@ -79,7 +79,6 @@ public class DynamicPermissionFilter extends OncePerRequestFilter {
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding("UTF-8");
 
-        // Giả sử bro có class ApiError này (nếu khác tên thì bro tự đổi nhé)
         ApiError error = ApiError.builder()
                 .timestamp(LocalDateTime.now())
                 .status(status.value())

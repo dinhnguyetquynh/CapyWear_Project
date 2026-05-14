@@ -48,10 +48,8 @@ public class JwtFilter extends OncePerRequestFilter {
                     List<String> authoritiesList = jwtUtils.extractAuthorities(token);
                     log.info("AUTHORITIES: {}", authoritiesList);
 
-                    // QUAN TRỌNG: Không cộng chuỗi "ROLE_" nữa!
                     List<SimpleGrantedAuthority> authorities = authoritiesList.stream()
                             .map(authority -> new SimpleGrantedAuthority(authority))
-                            // Có thể viết gọn là: .map(SimpleGrantedAuthority::new)
                             .toList();
 
                     UsernamePasswordAuthenticationToken authToken =

@@ -50,7 +50,7 @@ public class AuthenServiceImpl implements AuthenService {
     @Value("${jwt.expiration}")
     private int expiresIn;
 
-    @Value("${google.client.id}") // Lưu clientId của bạn trong application.properties
+    @Value("${google.client.id}")
     private String googleClientId;
 
     @Override

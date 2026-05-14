@@ -45,7 +45,6 @@ public class CartDetailImpl implements CartService {
         User currentUser = userRepository.findByEmail(userEmail)
                 .orElseThrow(()->new UserNotFoundException());
 
-        //Dành cho trường hợp sản phẩm đã được xoá hoặc ngưng bán rồi nhưng UI chưa load kịp
         Item item = itemRepository.findById(req.getItemId())
                 .orElseThrow(()-> new ItemNotFoundException());
         if(item.isDeleted()){

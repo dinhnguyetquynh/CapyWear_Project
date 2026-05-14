@@ -27,12 +27,9 @@ public class DataInitializer implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         String adminEmail = "admin202@gmail.com";
-
-        // 1. Kiểm tra xem admin đã tồn tại chưa
         if (userRepository.findByEmail(adminEmail).isEmpty()) {
             log.info("Admin account not found. Creating default admin...");
 
-            // 2. Tạo tài khoản admin mới
             User admin = User.builder()
                     .email("admin202@gmail.com")
                     .password(passwordEncoder.encode("admin123"))

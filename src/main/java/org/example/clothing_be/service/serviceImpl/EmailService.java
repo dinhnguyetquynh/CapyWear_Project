@@ -18,7 +18,7 @@ public class EmailService {
     private String sendGridApiKey;
 
     public void sendEmail(String toEmail, String otp, String userName) {
-        Email from = new Email("vinguyenha29@gmail.com"); // Email đã verify ở Bước 1
+        Email from = new Email("vinguyenha29@gmail.com");
         Email to = new Email(toEmail);
         String htmlBody = "<html><body>" +
                 "<h2>Chào " + userName + ",</h2>" +

@@ -10,6 +10,7 @@ import org.example.clothing_be.entity.OrderDetail;
 import org.example.clothing_be.entity.Orders;
 import org.example.clothing_be.entity.User;
 import org.example.clothing_be.enums.OrderStatus;
+import org.example.clothing_be.exception.ItemOutOfStockException;
 import org.example.clothing_be.exception.ResourceNotFoundException;
 import org.example.clothing_be.repository.ItemRepository;
 import org.example.clothing_be.repository.OrdersRepository;
@@ -49,6 +50,9 @@ public class OrderServiceImpl implements OrderService {
         for (OrderRequest.ItemRequest itemReq : request.getItems()) {
             Item item = itemRepository.findById(itemReq.getItemId())
                     .orElseThrow(() -> new RuntimeException("Item not found: " + itemReq.getItemId()));
+            if(item.getInventoryQty()==0 || item.getInventoryQty()<itemReq.getQuantity()){
+                throw new ItemOutOfStockException();
+            }
             item.setInventoryQty(item.getInventoryQty()-itemReq.getQuantity());
             itemRepository.save(item);
             OrderDetail detail = new OrderDetail();
@@ -110,7 +114,7 @@ public class OrderServiceImpl implements OrderService {
         OrderPendingRes response = new OrderPendingRes();
         response.setOrderId(order.getId());
         response.setUserEmail(order.getUser().getEmail());
-        response.setOrderDate(LocalDateTime.now()); // Hoặc dùng order.getOrderDate()
+        response.setOrderDate(LocalDateTime.now());
         response.setTotalOrder(order.getTotalOrder());
         response.setStatus(order.getStatus().name());
 
@@ -133,7 +137,7 @@ public class OrderServiceImpl implements OrderService {
     private OrderResponse mapToResponse(Orders order) {
         OrderResponse response = new OrderResponse();
         response.setOrderId(order.getId());
-        response.setOrderDate(LocalDateTime.now()); // Hoặc dùng order.getOrderDate()
+        response.setOrderDate(LocalDateTime.now());
         response.setTotalOrder(order.getTotalOrder());
         response.setStatus(order.getStatus().name());
 
